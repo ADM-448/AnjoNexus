@@ -1,0 +1,337 @@
+id,name,filePath,startLine,endLine,content,description
+"Namespace:tests/TestCase.php:Tests","Tests","tests/TestCase.php",2,2,"<?php
+
+namespace Tests;
+
+use Illuminate\Foundation\Testing\TestCase as BaseTestCase;",""
+"Namespace:tests/CreatesApplication.php:Tests","Tests","tests/CreatesApplication.php",2,2,"<?php
+
+namespace Tests;
+
+use Illuminate\Contracts\Console\Kernel;",""
+"Namespace:tests/Unit/ExampleTest.php:Tests\Unit","Tests\Unit","tests/Unit/ExampleTest.php",2,2,"<?php
+
+namespace Tests\Unit;
+
+use PHPUnit\Framework\TestCase;",""
+"Namespace:tests/Feature/ProfileTest.php:Tests\Feature","Tests\Feature","tests/Feature/ProfileTest.php",2,2,"<?php
+
+namespace Tests\Feature;
+
+use App\Models\User;",""
+"Namespace:tests/Feature/ExampleTest.php:Tests\Feature","Tests\Feature","tests/Feature/ExampleTest.php",2,2,"<?php
+
+namespace Tests\Feature;
+
+// use Illuminate\Foundation\Testing\RefreshDatabase;",""
+"Namespace:database/seeders/EditalSeeder.php:Database\Seeders","Database\Seeders","database/seeders/EditalSeeder.php",2,2,"<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;",""
+"Namespace:database/seeders/DatabaseSeeder.php:Database\Seeders","Database\Seeders","database/seeders/DatabaseSeeder.php",2,2,"<?php
+
+namespace Database\Seeders;
+
+// use Illuminate\Database\Console\Seeds\WithoutModelEvents;",""
+"Namespace:database/factories/UserFactory.php:Database\Factories","Database\Factories","database/factories/UserFactory.php",2,2,"<?php
+
+namespace Database\Factories;
+
+use Illuminate\Database\Eloquent\Factories\Factory;",""
+"Namespace:app/Services/GeminiService.php:App\Services","App\Services","app/Services/GeminiService.php",2,2,"<?php
+
+namespace App\Services;
+
+use Illuminate\Support\Facades\Http;
+",""
+"Namespace:app/Scrapers/GoogleNewsRssScraper.php:App\Scrapers","App\Scrapers","app/Scrapers/GoogleNewsRssScraper.php",2,2,"<?php
+
+namespace App\Scrapers;
+
+use App\Scrapers\Contracts\ScraperInterface;",""
+"Namespace:app/Scrapers/FinepScraper.php:App\Scrapers","App\Scrapers","app/Scrapers/FinepScraper.php",2,2,"<?php
+
+namespace App\Scrapers;
+
+use App\Scrapers\Contracts\ScraperInterface;",""
+"Namespace:app/Providers/RouteServiceProvider.php:App\Providers","App\Providers","app/Providers/RouteServiceProvider.php",2,2,"<?php
+
+namespace App\Providers;
+
+use Illuminate\Cache\RateLimiting\Limit;",""
+"Namespace:app/Providers/EventServiceProvider.php:App\Providers","App\Providers","app/Providers/EventServiceProvider.php",2,2,"<?php
+
+namespace App\Providers;
+
+use Illuminate\Auth\Events\Registered;",""
+"Namespace:app/Providers/BroadcastServiceProvider.php:App\Providers","App\Providers","app/Providers/BroadcastServiceProvider.php",2,2,"<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\Facades\Broadcast;",""
+"Namespace:app/Providers/AuthServiceProvider.php:App\Providers","App\Providers","app/Providers/AuthServiceProvider.php",2,2,"<?php
+
+namespace App\Providers;
+
+// use Illuminate\Support\Facades\Gate;",""
+"Namespace:app/Providers/AppServiceProvider.php:App\Providers","App\Providers","app/Providers/AppServiceProvider.php",2,2,"<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;",""
+"Namespace:app/Models/User.php:App\Models","App\Models","app/Models/User.php",2,2,"<?php
+
+namespace App\Models;
+
+// use Illuminate\Contracts\Auth\MustVerifyEmail;",""
+"Namespace:app/Models/ProjetoResposta.php:App\Models","App\Models","app/Models/ProjetoResposta.php",2,2,"<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;",""
+"Namespace:app/Models/Projeto.php:App\Models","App\Models","app/Models/Projeto.php",2,2,"<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;",""
+"Namespace:app/Models/Empresa.php:App\Models","App\Models","app/Models/Empresa.php",2,2,"<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;",""
+"Namespace:app/Models/EditalSecao.php:App\Models","App\Models","app/Models/EditalSecao.php",2,2,"<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;",""
+"Namespace:app/Models/EditalPergunta.php:App\Models","App\Models","app/Models/EditalPergunta.php",2,2,"<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;",""
+"Namespace:app/Models/Edital.php:App\Models","App\Models","app/Models/Edital.php",2,2,"<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;",""
+"Namespace:app/Models/DocumentoGerado.php:App\Models","App\Models","app/Models/DocumentoGerado.php",2,2,"<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;",""
+"Namespace:app/Jobs/RunAllScrapersJob.php:App\Jobs","App\Jobs","app/Jobs/RunAllScrapersJob.php",2,2,"<?php
+
+namespace App\Jobs;
+
+use Illuminate\Bus\Queueable;",""
+"Namespace:app/Http/Kernel.php:App\Http","App\Http","app/Http/Kernel.php",2,2,"<?php
+
+namespace App\Http;
+
+use Illuminate\Foundation\Http\Kernel as HttpKernel;",""
+"Namespace:app/Exceptions/Handler.php:App\Exceptions","App\Exceptions","app/Exceptions/Handler.php",2,2,"<?php
+
+namespace App\Exceptions;
+
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;",""
+"Namespace:app/Events/NovoEditalDetectado.php:App\Events","App\Events","app/Events/NovoEditalDetectado.php",2,2,"<?php
+
+namespace App\Events;
+
+use Illuminate\Broadcasting\Channel;",""
+"Namespace:app/Console/Kernel.php:App\Console","App\Console","app/Console/Kernel.php",2,2,"<?php
+
+namespace App\Console;
+
+use Illuminate\Console\Scheduling\Schedule;",""
+"Namespace:tests/Feature/Auth/RegistrationTest.php:Tests\Feature\Auth","Tests\Feature\Auth","tests/Feature/Auth/RegistrationTest.php",2,2,"<?php
+
+namespace Tests\Feature\Auth;
+
+use App\Providers\RouteServiceProvider;",""
+"Namespace:tests/Feature/Auth/PasswordUpdateTest.php:Tests\Feature\Auth","Tests\Feature\Auth","tests/Feature/Auth/PasswordUpdateTest.php",2,2,"<?php
+
+namespace Tests\Feature\Auth;
+
+use App\Models\User;",""
+"Namespace:tests/Feature/Auth/PasswordResetTest.php:Tests\Feature\Auth","Tests\Feature\Auth","tests/Feature/Auth/PasswordResetTest.php",2,2,"<?php
+
+namespace Tests\Feature\Auth;
+
+use App\Models\User;",""
+"Namespace:tests/Feature/Auth/PasswordConfirmationTest.php:Tests\Feature\Auth","Tests\Feature\Auth","tests/Feature/Auth/PasswordConfirmationTest.php",2,2,"<?php
+
+namespace Tests\Feature\Auth;
+
+use App\Models\User;",""
+"Namespace:tests/Feature/Auth/EmailVerificationTest.php:Tests\Feature\Auth","Tests\Feature\Auth","tests/Feature/Auth/EmailVerificationTest.php",2,2,"<?php
+
+namespace Tests\Feature\Auth;
+
+use App\Models\User;",""
+"Namespace:tests/Feature/Auth/AuthenticationTest.php:Tests\Feature\Auth","Tests\Feature\Auth","tests/Feature/Auth/AuthenticationTest.php",2,2,"<?php
+
+namespace Tests\Feature\Auth;
+
+use App\Models\User;",""
+"Namespace:app/View/Components/GuestLayout.php:App\View\Components","App\View\Components","app/View/Components/GuestLayout.php",2,2,"<?php
+
+namespace App\View\Components;
+
+use Illuminate\View\Component;",""
+"Namespace:app/View/Components/AppLayout.php:App\View\Components","App\View\Components","app/View/Components/AppLayout.php",2,2,"<?php
+
+namespace App\View\Components;
+
+use Illuminate\View\Component;",""
+"Namespace:app/Scrapers/Contracts/ScraperInterface.php:App\Scrapers\Contracts","App\Scrapers\Contracts","app/Scrapers/Contracts/ScraperInterface.php",2,2,"<?php
+
+namespace App\Scrapers\Contracts;
+
+interface ScraperInterface",""
+"Namespace:app/Http/Requests/UpdateEditalRequest.php:App\Http\Requests","App\Http\Requests","app/Http/Requests/UpdateEditalRequest.php",2,2,"<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;",""
+"Namespace:app/Http/Requests/StoreEditalRequest.php:App\Http\Requests","App\Http\Requests","app/Http/Requests/StoreEditalRequest.php",2,2,"<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;",""
+"Namespace:app/Http/Requests/ProfileUpdateRequest.php:App\Http\Requests","App\Http\Requests","app/Http/Requests/ProfileUpdateRequest.php",2,2,"<?php
+
+namespace App\Http\Requests;
+
+use App\Models\User;",""
+"Namespace:app/Http/Controllers/ProfileController.php:App\Http\Controllers","App\Http\Controllers","app/Http/Controllers/ProfileController.php",2,2,"<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\ProfileUpdateRequest;",""
+"Namespace:app/Http/Controllers/OpenAIController.php:App\Http\Controllers","App\Http\Controllers","app/Http/Controllers/OpenAIController.php",2,2,"<?php
+
+namespace App\Http\Controllers;
+
+use Exception;",""
+"Namespace:app/Http/Controllers/EmpresaController.php:App\Http\Controllers","App\Http\Controllers","app/Http/Controllers/EmpresaController.php",2,2,"<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Empresa;",""
+"Namespace:app/Http/Controllers/EditalController.php:App\Http\Controllers","App\Http\Controllers","app/Http/Controllers/EditalController.php",2,2,"<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Edital;",""
+"Namespace:app/Http/Controllers/DashboardController.php:App\Http\Controllers","App\Http\Controllers","app/Http/Controllers/DashboardController.php",2,2,"<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Edital;",""
+"Namespace:app/Http/Controllers/Controller.php:App\Http\Controllers","App\Http\Controllers","app/Http/Controllers/Controller.php",2,2,"<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;",""
+"Namespace:app/Http/Middleware/VerifyCsrfToken.php:App\Http\Middleware","App\Http\Middleware","app/Http/Middleware/VerifyCsrfToken.php",2,2,"<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;",""
+"Namespace:app/Http/Middleware/ValidateSignature.php:App\Http\Middleware","App\Http\Middleware","app/Http/Middleware/ValidateSignature.php",2,2,"<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Routing\Middleware\ValidateSignature as Middleware;",""
+"Namespace:app/Http/Middleware/TrustProxies.php:App\Http\Middleware","App\Http\Middleware","app/Http/Middleware/TrustProxies.php",2,2,"<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Http\Middleware\TrustProxies as Middleware;",""
+"Namespace:app/Http/Middleware/TrustHosts.php:App\Http\Middleware","App\Http\Middleware","app/Http/Middleware/TrustHosts.php",2,2,"<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Http\Middleware\TrustHosts as Middleware;",""
+"Namespace:app/Http/Middleware/TrimStrings.php:App\Http\Middleware","App\Http\Middleware","app/Http/Middleware/TrimStrings.php",2,2,"<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Foundation\Http\Middleware\TrimStrings as Middleware;",""
+"Namespace:app/Http/Middleware/RedirectIfAuthenticated.php:App\Http\Middleware","App\Http\Middleware","app/Http/Middleware/RedirectIfAuthenticated.php",2,2,"<?php
+
+namespace App\Http\Middleware;
+
+use App\Providers\RouteServiceProvider;",""
+"Namespace:app/Http/Middleware/PreventRequestsDuringMaintenance.php:App\Http\Middleware","App\Http\Middleware","app/Http/Middleware/PreventRequestsDuringMaintenance.php",2,2,"<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance as Middleware;",""
+"Namespace:app/Http/Middleware/EncryptCookies.php:App\Http\Middleware","App\Http\Middleware","app/Http/Middleware/EncryptCookies.php",2,2,"<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Cookie\Middleware\EncryptCookies as Middleware;",""
+"Namespace:app/Http/Middleware/Authenticate.php:App\Http\Middleware","App\Http\Middleware","app/Http/Middleware/Authenticate.php",2,2,"<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Auth\Middleware\Authenticate as Middleware;",""
+"Namespace:app/Console/Commands/ScrapeEditaisCommand.php:App\Console\Commands","App\Console\Commands","app/Console/Commands/ScrapeEditaisCommand.php",2,2,"<?php
+
+namespace App\Console\Commands;
+
+use Illuminate\Console\Command;",""
+"Namespace:app/Http/Requests/Auth/LoginRequest.php:App\Http\Requests\Auth","App\Http\Requests\Auth","app/Http/Requests/Auth/LoginRequest.php",2,2,"<?php
+
+namespace App\Http\Requests\Auth;
+
+use Illuminate\Auth\Events\Lockout;",""
+"Namespace:app/Http/Controllers/Auth/VerifyEmailController.php:App\Http\Controllers\Auth","App\Http\Controllers\Auth","app/Http/Controllers/Auth/VerifyEmailController.php",2,2,"<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;",""
+"Namespace:app/Http/Controllers/Auth/RegisteredUserController.php:App\Http\Controllers\Auth","App\Http\Controllers\Auth","app/Http/Controllers/Auth/RegisteredUserController.php",2,2,"<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;",""
+"Namespace:app/Http/Controllers/Auth/PasswordResetLinkController.php:App\Http\Controllers\Auth","App\Http\Controllers\Auth","app/Http/Controllers/Auth/PasswordResetLinkController.php",2,2,"<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;",""
+"Namespace:app/Http/Controllers/Auth/PasswordController.php:App\Http\Controllers\Auth","App\Http\Controllers\Auth","app/Http/Controllers/Auth/PasswordController.php",2,2,"<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;",""
+"Namespace:app/Http/Controllers/Auth/NewPasswordController.php:App\Http\Controllers\Auth","App\Http\Controllers\Auth","app/Http/Controllers/Auth/NewPasswordController.php",2,2,"<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;",""
+"Namespace:app/Http/Controllers/Auth/EmailVerificationPromptController.php:App\Http\Controllers\Auth","App\Http\Controllers\Auth","app/Http/Controllers/Auth/EmailVerificationPromptController.php",2,2,"<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;",""
+"Namespace:app/Http/Controllers/Auth/EmailVerificationNotificationController.php:App\Http\Controllers\Auth","App\Http\Controllers\Auth","app/Http/Controllers/Auth/EmailVerificationNotificationController.php",2,2,"<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;",""
+"Namespace:app/Http/Controllers/Auth/ConfirmablePasswordController.php:App\Http\Controllers\Auth","App\Http\Controllers\Auth","app/Http/Controllers/Auth/ConfirmablePasswordController.php",2,2,"<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;",""
+"Namespace:app/Http/Controllers/Auth/AuthenticatedSessionController.php:App\Http\Controllers\Auth","App\Http\Controllers\Auth","app/Http/Controllers/Auth/AuthenticatedSessionController.php",2,2,"<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;",""

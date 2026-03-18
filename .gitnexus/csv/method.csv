@@ -1,0 +1,2583 @@
+id,name,filePath,startLine,endLine,isExported,content,description,parameterCount,returnType
+"Method:tests/CreatesApplication.php:createApplication","createApplication","tests/CreatesApplication.php",13,20,true,"     * @return \Illuminate\Foundation\Application
+     */
+    public function createApplication()
+    {
+        $app = require __DIR__.'/../bootstrap/app.php';
+
+        $app->make(Kernel::class)->bootstrap();
+
+        return $app;
+    }
+}
+","",0,"Application"
+"Method:tests/Unit/ExampleTest.php:test_that_true_is_true","test_that_true_is_true","tests/Unit/ExampleTest.php",13,16,true,"     * @return void
+     */
+    public function test_that_true_is_true()
+    {
+        $this->assertTrue(true);
+    }
+}
+","",0,""
+"Method:tests/Feature/ProfileTest.php:test_profile_page_is_displayed","test_profile_page_is_displayed","tests/Feature/ProfileTest.php",12,21,true,"    use RefreshDatabase;
+
+    public function test_profile_page_is_displayed(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->get('/profile');
+
+        $response->assertOk();
+    }
+
+    public function test_profile_information_can_be_updated(): void","",0,"void"
+"Method:tests/Feature/ProfileTest.php:test_profile_information_can_be_updated","test_profile_information_can_be_updated","tests/Feature/ProfileTest.php",23,43,true,"    }
+
+    public function test_profile_information_can_be_updated(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->patch('/profile', [
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/profile');
+
+        $user->refresh();
+
+        $this->assertSame('Test User', $user->name);
+        $this->assertSame('test@example.com', $user->email);
+        $this->assertNull($user->email_verified_at);
+    }
+
+    public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void","",0,"void"
+"Method:tests/Feature/ProfileTest.php:test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged","test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged","tests/Feature/ProfileTest.php",45,61,true,"    }
+
+    public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->patch('/profile', [
+                'name' => 'Test User',
+                'email' => $user->email,
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/profile');
+
+        $this->assertNotNull($user->refresh()->email_verified_at);
+    }
+
+    public function test_user_can_delete_their_account(): void","",0,"void"
+"Method:tests/Feature/ProfileTest.php:test_user_can_delete_their_account","test_user_can_delete_their_account","tests/Feature/ProfileTest.php",63,79,true,"    }
+
+    public function test_user_can_delete_their_account(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->delete('/profile', [
+                'password' => 'password',
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/');
+
+        $this->assertGuest();
+        $this->assertNull($user->fresh());
+    }
+
+    public function test_correct_password_must_be_provided_to_delete_account(): void","",0,"void"
+"Method:tests/Feature/ProfileTest.php:test_correct_password_must_be_provided_to_delete_account","test_correct_password_must_be_provided_to_delete_account","tests/Feature/ProfileTest.php",81,97,true,"    }
+
+    public function test_correct_password_must_be_provided_to_delete_account(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->from('/profile')
+            ->delete('/profile', [
+                'password' => 'wrong-password',
+            ]);
+
+        $response
+            ->assertSessionHasErrorsIn('userDeletion', 'password')
+            ->assertRedirect('/profile');
+
+        $this->assertNotNull($user->fresh());
+    }
+}
+","",0,"void"
+"Method:tests/Feature/ExampleTest.php:test_the_application_returns_a_successful_response","test_the_application_returns_a_successful_response","tests/Feature/ExampleTest.php",14,19,true,"     * @return void
+     */
+    public function test_the_application_returns_a_successful_response()
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+    }
+}
+","",0,""
+"Method:database/seeders/EditalSeeder.php:run","run","database/seeders/EditalSeeder.php",9,56,true,"class EditalSeeder extends Seeder
+{
+    public function run()
+    {
+        $edital = Edital::create([
+            'titulo' => 'Finep Mais Inovação Brasil – Rodada 2 – Transformação Mineral',
+            'codigo_externo' => '771',
+            'orgao' => 'Finep',
+            'email_contato' => 'cp_transformacao_mineral@finep.gov.br',
+            'modalidade' => 'Subvenção Econômica',
+            'orcamento_global' => 200000000.00,
+            'publico_alvo' => 'Empresas (obrigatória parceria com ICTs)',
+            'temas' => 'Minerais críticos e estratégicos, Descarbonização, Transição Energética',
+            'trl_min' => '3',
+            'trl_max' => '9',
+            'status' => 'Aberto',
+            'url_oficial' => 'http://www.finep.gov.br/chamadas-publicas/771'
+        ]);
+
+        // Criar Seções e Perguntas Mocks do Finep
+        $secao1 = $edital->secoes()->create([
+            'titulo' => '1. Descrição do Projeto',
+            'ordem' => 1
+        ]);
+        
+        $secao1->perguntas()->create([
+            'texto' => 'Qual o problema que o projeto resolve? (Aponte também o diferencial inovador).',
+            'tipo' => 'textarea',
+            'max_palavras' => 500,
+            'ordem' => 1
+        ]);
+        $secao1->perguntas()->create([
+            'texto' => 'Descreva a solução proposta.',
+            'tipo' => 'textarea',
+            'max_palavras' => 800,
+            'ordem' => 2
+        ]);
+        
+        $secao2 = $edital->secoes()->create([
+            'titulo' => '2. Viabilidade e TRL',
+            'ordem' => 2
+        ]);
+        
+        $secao2->perguntas()->create([
+            'texto' => 'Qual o Nível de Maturidade Tecnológica (TRL) atual do projeto e qual TRL se espera atingir ao final?',
+            'tipo' => 'textarea',
+            'max_palavras' => 300,
+            'ordem' => 1
+        ]);
+    }
+}
+","",0,""
+"Method:database/seeders/DatabaseSeeder.php:run","run","database/seeders/DatabaseSeeder.php",14,39,true,"     * @return void
+     */
+    public function run()
+    {
+        // Criar um usuário default
+        $user = \App\Models\User::factory()->create([
+            'name' => 'Usuário Teste',
+            'email' => 'teste@anjoinovador.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        // Vincular uma empresa
+        \App\Models\Empresa::create([
+            'user_id' => $user->id,
+            'razao_social' => 'Tech Mining Inovação LTDA',
+            'cnpj' => '12.345.678/0001-90',
+            'porte' => 'Média',
+            'setor' => 'Mineração / Tecnologia',
+            'estado' => 'SP',
+            'n_funcionarios' => 45,
+            'faturamento_anual' => '2.5 milhões',
+            'historico_inovacao' => 'Desenvolvimento de sensores IoT para maquinário pesado.'
+        ]);
+
+        $this->call([
+            EditalSeeder::class,
+        ]);
+    }
+}
+","",0,""
+"Method:database/migrations/2026_03_17_193045_add_payload_and_scan_time_to_editais_table.php:up","up","database/migrations/2026_03_17_193045_add_payload_and_scan_time_to_editais_table.php",13,19,true,"     * @return void
+     */
+    public function up()
+    {
+        Schema::table('editais', function (Blueprint $table) {
+            $table->json('payload_origem')->nullable()->after('url_oficial')->comment('Dados brutos JSON vindos do scraper');
+            $table->timestamp('last_scanned_at')->nullable()->after('updated_at')->comment('Última vez que este edital foi detectado em uma varredura');
+        });
+    }
+
+    /**","",0,""
+"Method:database/migrations/2026_03_17_193045_add_payload_and_scan_time_to_editais_table.php:down","down","database/migrations/2026_03_17_193045_add_payload_and_scan_time_to_editais_table.php",26,31,true,"     * @return void
+     */
+    public function down()
+    {
+        Schema::table('editais', function (Blueprint $table) {
+            $table->dropColumn(['payload_origem', 'last_scanned_at']);
+        });
+    }
+};
+","",0,""
+"Method:database/migrations/2026_03_17_012400_add_objetivos_requisitos_to_editais.php:up","up","database/migrations/2026_03_17_012400_add_objetivos_requisitos_to_editais.php",8,15,true,"return new class extends Migration
+{
+    public function up()
+    {
+        Schema::table('editais', function (Blueprint $table) {
+            $table->text('objetivos')->nullable()->after('temas');
+            $table->text('requisitos')->nullable()->after('objetivos');
+            $table->boolean('ia_enriquecido')->default(false)->after('requisitos');
+        });
+    }
+
+    public function down()","",0,""
+"Method:database/migrations/2026_03_17_012400_add_objetivos_requisitos_to_editais.php:down","down","database/migrations/2026_03_17_012400_add_objetivos_requisitos_to_editais.php",17,22,true,"    }
+
+    public function down()
+    {
+        Schema::table('editais', function (Blueprint $table) {
+            $table->dropColumn(['objetivos', 'requisitos', 'ia_enriquecido']);
+        });
+    }
+};","",0,""
+"Method:database/migrations/2026_03_16_174000_update_documentos_gerados_nullable_secao.php:up","up","database/migrations/2026_03_16_174000_update_documentos_gerados_nullable_secao.php",9,16,true,"return new class extends Migration
+{
+    public function up()
+    {
+        Schema::table('documentos_gerados', function (Blueprint $table) {
+            // Padrão moderno: usa o change() em vez de SQL puro
+            $table->foreignId('secao_id')->nullable()->change();
+            $table->text('prompt_utilizado')->nullable()->after('conteudo_ia');
+        });
+    }
+
+    public function down()","",0,""
+"Method:database/migrations/2026_03_16_174000_update_documentos_gerados_nullable_secao.php:down","down","database/migrations/2026_03_16_174000_update_documentos_gerados_nullable_secao.php",18,27,true,"    }
+
+    public function down()
+    {
+        // Limpar registros que não tem seção antes de tentar voltar para NOT NULL
+        DB::table('documentos_gerados')->whereNull('secao_id')->delete();
+
+        Schema::table('documentos_gerados', function (Blueprint $table) {
+            $table->foreignId('secao_id')->nullable(false)->change();
+            $table->dropColumn('prompt_utilizado');
+        });
+    }
+};","",0,""
+"Method:database/migrations/2026_03_16_170000_add_extra_fields_to_empresas_table.php:up","up","database/migrations/2026_03_16_170000_add_extra_fields_to_empresas_table.php",8,38,true,"return new class extends Migration
+{
+    public function up()
+    {
+        Schema::table('empresas', function (Blueprint $table) {
+            // Contato
+            $table->string('telefone')->nullable()->after('cnpj');
+            $table->string('email_contato')->nullable()->after('telefone');
+            $table->string('representante_legal')->nullable()->after('email_contato');
+            $table->string('cargo_representante')->nullable()->after('representante_legal');
+
+            // Sobre o Projeto / Tese de Captação
+            $table->text('problema_que_resolve')->nullable()->after('historico_inovacao');
+            $table->text('quem_e_impactado')->nullable()->after('problema_que_resolve');
+            $table->text('solucao_proposta')->nullable()->after('quem_e_impactado');
+            $table->text('como_funciona_na_pratica')->nullable()->after('solucao_proposta');
+            $table->string('estagio_solucao')->nullable()->after('como_funciona_na_pratica'); // Ideia, Protótipo, Validação, Operação
+            $table->text('diferenciais')->nullable()->after('estagio_solucao');
+            $table->text('propriedade_intelectual')->nullable()->after('diferenciais');
+            $table->string('segmento_mercado')->nullable()->after('propriedade_intelectual');
+            $table->string('publico_alvo_empresa')->nullable()->after('segmento_mercado');
+
+            // Impactos
+            $table->text('impacto_economico')->nullable()->after('publico_alvo_empresa');
+            $table->text('impacto_social')->nullable()->after('impacto_economico');
+            $table->text('impacto_ambiental')->nullable()->after('impacto_social');
+            $table->text('metricas_indicadores')->nullable()->after('impacto_ambiental');
+
+            // Financeiro
+            $table->string('tipo_recurso_interesse')->nullable()->after('metricas_indicadores'); // Subvenção, Financiamento, Equity
+            $table->text('como_recurso_sera_utilizado')->nullable()->after('tipo_recurso_interesse');
+        });
+    }
+
+    public function down()","",0,""
+"Method:database/migrations/2026_03_16_170000_add_extra_fields_to_empresas_table.php:down","down","database/migrations/2026_03_16_170000_add_extra_fields_to_empresas_table.php",40,51,true,"    }
+
+    public function down()
+    {
+        Schema::table('empresas', function (Blueprint $table) {
+            $table->dropColumn([
+                'telefone', 'email_contato', 'representante_legal', 'cargo_representante',
+                'problema_que_resolve', 'quem_e_impactado', 'solucao_proposta', 'como_funciona_na_pratica',
+                'estagio_solucao', 'diferenciais', 'propriedade_intelectual', 'segmento_mercado',
+                'publico_alvo_empresa', 'impacto_economico', 'impacto_social', 'impacto_ambiental',
+                'metricas_indicadores', 'tipo_recurso_interesse', 'como_recurso_sera_utilizado'
+            ]);
+        });
+    }
+};
+","",0,""
+"Method:database/migrations/2026_03_16_141116_increase_editais_fields_size.php:up","up","database/migrations/2026_03_16_141116_increase_editais_fields_size.php",13,22,true,"     * @return void
+     */
+    public function up()
+    {
+        Schema::table('editais', function (Blueprint $table) {
+            // Mudando para text() para suportar títulos e URLs gigantes (vinda de redirecionamento do Google por exemplo)
+            $table->text('titulo')->change();
+            $table->text('url_oficial')->change();
+            $table->text('modalidade')->change();
+            $table->text('publico_alvo')->change();
+        });
+    }
+
+    /**","",0,""
+"Method:database/migrations/2026_03_16_141116_increase_editais_fields_size.php:down","down","database/migrations/2026_03_16_141116_increase_editais_fields_size.php",29,45,true,"     * @return void
+     */
+    public function down()
+    {
+        // Trunca os dados para 255 caracteres antes de encolher a coluna para evitar erro de rollback
+        \Illuminate\Support\Facades\DB::table('editais')->update([
+            'titulo' => \Illuminate\Support\Facades\DB::raw('LEFT(titulo, 255)'),
+            'url_oficial' => \Illuminate\Support\Facades\DB::raw('LEFT(url_oficial, 255)'),
+            'modalidade' => \Illuminate\Support\Facades\DB::raw('LEFT(modalidade, 255)'),
+            'publico_alvo' => \Illuminate\Support\Facades\DB::raw('LEFT(publico_alvo, 255)'),
+        ]);
+
+        Schema::table('editais', function (Blueprint $table) {
+            $table->string('titulo')->change();
+            $table->string('url_oficial')->change();
+            $table->string('modalidade')->change();
+            $table->string('publico_alvo')->change();
+        });
+    }
+};
+","",0,""
+"Method:database/migrations/2026_03_16_123850_create_projeto_respostas_table.php:up","up","database/migrations/2026_03_16_123850_create_projeto_respostas_table.php",13,22,true,"     * @return void
+     */
+    public function up()
+    {
+        Schema::create('projeto_respostas', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('projeto_id')->constrained('projetos')->onDelete('cascade');
+            $table->foreignId('pergunta_id')->constrained('edital_perguntas')->onDelete('cascade');
+            $table->text('resposta_texto');
+            $table->timestamps();
+        });
+    }
+
+    /**","",0,""
+"Method:database/migrations/2026_03_16_123850_create_projeto_respostas_table.php:down","down","database/migrations/2026_03_16_123850_create_projeto_respostas_table.php",29,32,true,"     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('projeto_respostas');
+    }
+};
+","",0,""
+"Method:database/migrations/2026_03_16_123619_create_documentos_gerados_table.php:up","up","database/migrations/2026_03_16_123619_create_documentos_gerados_table.php",13,23,true,"     * @return void
+     */
+    public function up()
+    {
+        Schema::create('documentos_gerados', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('projeto_id')->constrained('projetos')->onDelete('cascade');
+            $table->foreignId('secao_id')->constrained('edital_secoes')->onDelete('cascade');
+            $table->longText('conteudo_ia')->nullable();
+            $table->enum('status', ['Pendente', 'Processando', 'Pronto', 'Erro'])->default('Pendente');
+            $table->timestamps();
+        });
+    }
+
+    /**","",0,""
+"Method:database/migrations/2026_03_16_123619_create_documentos_gerados_table.php:down","down","database/migrations/2026_03_16_123619_create_documentos_gerados_table.php",30,33,true,"     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('documentos_gerados');
+    }
+};
+","",0,""
+"Method:database/migrations/2026_03_16_123604_create_projetos_table.php:up","up","database/migrations/2026_03_16_123604_create_projetos_table.php",13,23,true,"     * @return void
+     */
+    public function up()
+    {
+        Schema::create('projetos', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('empresa_id')->constrained('empresas')->onDelete('cascade');
+            $table->foreignId('edital_id')->constrained('editais')->onDelete('cascade');
+            $table->string('titulo');
+            $table->enum('status', ['Em rascunho', 'Pronto para envio', 'Enviado'])->default('Em rascunho');
+            $table->timestamps();
+        });
+    }
+
+    /**","",0,""
+"Method:database/migrations/2026_03_16_123604_create_projetos_table.php:down","down","database/migrations/2026_03_16_123604_create_projetos_table.php",30,33,true,"     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('projetos');
+    }
+};
+","",0,""
+"Method:database/migrations/2026_03_16_123548_create_empresas_table.php:up","up","database/migrations/2026_03_16_123548_create_empresas_table.php",13,28,true,"     * @return void
+     */
+    public function up()
+    {
+        Schema::create('empresas', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->string('razao_social');
+            $table->string('cnpj')->unique();
+            $table->string('porte')->nullable();
+            $table->string('setor')->nullable();
+            $table->string('estado')->nullable();
+            $table->integer('n_funcionarios')->nullable();
+            $table->string('faturamento_anual')->nullable();
+            $table->text('historico_inovacao')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    /**","",0,""
+"Method:database/migrations/2026_03_16_123548_create_empresas_table.php:down","down","database/migrations/2026_03_16_123548_create_empresas_table.php",35,38,true,"     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('empresas');
+    }
+};
+","",0,""
+"Method:database/migrations/2026_03_16_123532_create_edital_perguntas_table.php:up","up","database/migrations/2026_03_16_123532_create_edital_perguntas_table.php",13,24,true,"     * @return void
+     */
+    public function up()
+    {
+        Schema::create('edital_perguntas', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('secao_id')->constrained('edital_secoes')->onDelete('cascade');
+            $table->text('texto');
+            $table->enum('tipo', ['text', 'textarea'])->default('textarea');
+            $table->integer('max_palavras')->nullable();
+            $table->integer('ordem')->default(0);
+            $table->timestamps();
+        });
+    }
+
+    /**","",0,""
+"Method:database/migrations/2026_03_16_123532_create_edital_perguntas_table.php:down","down","database/migrations/2026_03_16_123532_create_edital_perguntas_table.php",31,34,true,"     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('edital_perguntas');
+    }
+};
+","",0,""
+"Method:database/migrations/2026_03_16_123518_create_edital_secoes_table.php:up","up","database/migrations/2026_03_16_123518_create_edital_secoes_table.php",13,22,true,"     * @return void
+     */
+    public function up()
+    {
+        Schema::create('edital_secoes', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('edital_id')->constrained('editais')->onDelete('cascade');
+            $table->string('titulo');
+            $table->integer('ordem')->default(0);
+            $table->timestamps();
+        });
+    }
+
+    /**","",0,""
+"Method:database/migrations/2026_03_16_123518_create_edital_secoes_table.php:down","down","database/migrations/2026_03_16_123518_create_edital_secoes_table.php",29,32,true,"     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('edital_secoes');
+    }
+};
+","",0,""
+"Method:database/migrations/2026_03_16_123458_create_editais_table.php:up","up","database/migrations/2026_03_16_123458_create_editais_table.php",13,33,true,"     * @return void
+     */
+    public function up()
+    {
+        Schema::create('editais', function (Blueprint $table) {
+            $table->id();
+            $table->string('titulo');
+            $table->string('codigo_externo')->nullable(); // ID no site de origem, para deduplicação
+            $table->string('orgao')->default('Finep');
+            $table->string('email_contato')->nullable();
+            $table->string('modalidade')->nullable();
+            $table->decimal('orcamento_global', 15, 2)->nullable();
+            $table->string('publico_alvo')->nullable();
+            $table->text('temas')->nullable();
+            $table->string('trl_min')->nullable();
+            $table->string('trl_max')->nullable();
+            $table->date('data_abertura')->nullable();
+            $table->date('data_encerramento')->nullable();
+            $table->enum('status', ['Aberto', 'Encerrado', 'Em breve'])->default('Aberto');
+            $table->string('url_oficial')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    /**","",0,""
+"Method:database/migrations/2026_03_16_123458_create_editais_table.php:down","down","database/migrations/2026_03_16_123458_create_editais_table.php",40,43,true,"     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('editais');
+    }
+};
+","",0,""
+"Method:database/migrations/2019_12_14_000001_create_personal_access_tokens_table.php:up","up","database/migrations/2019_12_14_000001_create_personal_access_tokens_table.php",13,25,true,"     * @return void
+     */
+    public function up()
+    {
+        Schema::create('personal_access_tokens', function (Blueprint $table) {
+            $table->id();
+            $table->morphs('tokenable');
+            $table->string('name');
+            $table->string('token', 64)->unique();
+            $table->text('abilities')->nullable();
+            $table->timestamp('last_used_at')->nullable();
+            $table->timestamp('expires_at')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    /**","",0,""
+"Method:database/migrations/2019_12_14_000001_create_personal_access_tokens_table.php:down","down","database/migrations/2019_12_14_000001_create_personal_access_tokens_table.php",32,35,true,"     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('personal_access_tokens');
+    }
+};
+","",0,""
+"Method:database/migrations/2019_08_19_000000_create_failed_jobs_table.php:up","up","database/migrations/2019_08_19_000000_create_failed_jobs_table.php",13,24,true,"     * @return void
+     */
+    public function up()
+    {
+        Schema::create('failed_jobs', function (Blueprint $table) {
+            $table->id();
+            $table->string('uuid')->unique();
+            $table->text('connection');
+            $table->text('queue');
+            $table->longText('payload');
+            $table->longText('exception');
+            $table->timestamp('failed_at')->useCurrent();
+        });
+    }
+
+    /**","",0,""
+"Method:database/migrations/2019_08_19_000000_create_failed_jobs_table.php:down","down","database/migrations/2019_08_19_000000_create_failed_jobs_table.php",31,34,true,"     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('failed_jobs');
+    }
+};
+","",0,""
+"Method:database/migrations/2014_10_12_100000_create_password_resets_table.php:up","up","database/migrations/2014_10_12_100000_create_password_resets_table.php",13,20,true,"     * @return void
+     */
+    public function up()
+    {
+        Schema::create('password_resets', function (Blueprint $table) {
+            $table->string('email')->primary();
+            $table->string('token');
+            $table->timestamp('created_at')->nullable();
+        });
+    }
+
+    /**","",0,""
+"Method:database/migrations/2014_10_12_100000_create_password_resets_table.php:down","down","database/migrations/2014_10_12_100000_create_password_resets_table.php",27,30,true,"     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('password_resets');
+    }
+};
+","",0,""
+"Method:database/migrations/2014_10_12_000000_create_users_table.php:up","up","database/migrations/2014_10_12_000000_create_users_table.php",13,24,true,"     * @return void
+     */
+    public function up()
+    {
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->rememberToken();
+            $table->timestamps();
+        });
+    }
+
+    /**","",0,""
+"Method:database/migrations/2014_10_12_000000_create_users_table.php:down","down","database/migrations/2014_10_12_000000_create_users_table.php",31,34,true,"     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('users');
+    }
+};
+","",0,""
+"Method:database/migrations/0000_00_00_000000_create_websockets_statistics_entries_table.php:up","up","database/migrations/0000_00_00_000000_create_websockets_statistics_entries_table.php",13,23,true,"     * @return void
+     */
+    public function up()
+    {
+        Schema::create('websockets_statistics_entries', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('app_id');
+            $table->integer('peak_connection_count');
+            $table->integer('websocket_message_count');
+            $table->integer('api_message_count');
+            $table->nullableTimestamps();
+        });
+    }
+
+    /**","",0,""
+"Method:database/migrations/0000_00_00_000000_create_websockets_statistics_entries_table.php:down","down","database/migrations/0000_00_00_000000_create_websockets_statistics_entries_table.php",30,33,true,"     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('websockets_statistics_entries');
+    }
+}
+","",0,""
+"Method:database/factories/UserFactory.php:definition","definition","database/factories/UserFactory.php",17,26,true,"     * @return array<string, mixed>
+     */
+    public function definition()
+    {
+        return [
+            'name' => fake()->name(),
+            'email' => fake()->unique()->safeEmail(),
+            'email_verified_at' => now(),
+            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'remember_token' => Str::random(10),
+        ];
+    }
+
+    /**","",0,"array<string,"
+"Method:database/factories/UserFactory.php:unverified","unverified","database/factories/UserFactory.php",33,38,true,"     * @return static
+     */
+    public function unverified()
+    {
+        return $this->state(fn (array $attributes) => [
+            'email_verified_at' => null,
+        ]);
+    }
+}
+","",0,""
+"Method:app/Services/GeminiService.php:__construct","__construct","app/Services/GeminiService.php",13,18,true,"    private string $defaultModel;
+
+    public function __construct()
+    {
+        $this->key = env('GOOGLE_GEMINI_KEY') ?? env('OPEN_AI_KEY'); 
+        // Atualizado para o padrão mais seguro do Google
+        $this->defaultModel = ""gemini-flash-latest""; 
+    }
+
+    // Agora o método aceita um segundo parâmetro opcional
+","",0,""
+"Method:app/Services/GeminiService.php:generateContent","generateContent","app/Services/GeminiService.php",21,51,true,"
+    // Agora o método aceita um segundo parâmetro opcional
+    public function generateContent(string $prompt, ?string $modelOverride = null)
+    {
+        $modelToUse = $modelOverride ?? $this->defaultModel;
+
+        try {
+            $response = Http::timeout(60)->post(
+                ""https://generativelanguage.googleapis.com/v1beta/models/{$modelToUse}:generateContent?key={$this->key}"",
+                ['contents' => [['parts' => [['text' => $prompt]]]]]
+            );
+
+            if ($response->failed()) {
+                $errorBody = $response->body();
+                Log::error(""Gemini API Error [{$modelToUse}]: "" . $errorBody);
+                $errorMessage = $response->json()['error']['message'] ?? 'Erro desconhecido na API do Gemini';
+                throw new Exception(""Erro na IA: "" . $errorMessage);
+            }
+
+            $text = $response->json()['candidates'][0]['content']['parts'][0]['text'] ?? null;
+            
+            if (!$text) {
+                Log::error(""Gemini API Empty Response [{$modelToUse}]: "" . $response->body());
+                throw new Exception(""A IA não retornou conteúdo. Tente novamente em instantes."");
+            }
+
+            return $text;
+
+        } catch (Exception $e) {
+            Log::error(""Gemini Exception: "" . $e->getMessage());
+            throw $e;
+        }
+    }
+}","",2,""
+"Method:app/Scrapers/GoogleNewsRssScraper.php:scrape","scrape","app/Scrapers/GoogleNewsRssScraper.php",13,79,true,"     * É um ótimo ponto de partida porque retorna um feed XML puro e determinístico.
+     */
+    public function scrape(): array
+    {
+        // Ampliei o termo para ""edital inovação"" para garantir que a gente sempre ache
+        // notícias e você veja a mágica do scraper rodando na prática!
+        $termos = urlencode('edital inovação');
+        $url = ""https://news.google.com/rss/search?q={$termos}&hl=pt-BR&gl=BR"";
+
+        $resultados = [];
+
+        try {
+            // Em vez de simplexml_load_file q as vezes o google bloqueia por faltar User-Agent,
+            // usamos o Facade Http nativo do Laravel passando que somos um navegador!
+            $response = \Illuminate\Support\Facades\Http::withHeaders([
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            ])->get($url);
+
+            if (!$response->successful()) {
+                Log::error(""GoogleNewsRssScraper: Falha na requisição / Status: "" . $response->status());
+                return [];
+            }
+
+            // O PHP parseia o texto XML para um Object com base na string que o Http pegou
+            $xml = simplexml_load_string($response->body());
+
+            // O XML de RSS tem `<channel>` e dentro de channel vários `<item>`
+            // Cada item é uma notícia.
+            if (isset($xml->channel->item)) {
+                foreach ($xml->channel->item as $noticia) {
+                    
+                    // Converte os dados do XML para string (tipo seguro do PHP)
+                    $tituloString = (string) $noticia->title;
+                    $linkString = (string) $noticia->link;
+                    // Hash o link pq ele é único e a url original vem camuflada no google news
+                    $codigoExterno = md5($linkString);
+                    // extrai publisher do title, google news bota publisher no final ""- Publisher""
+                    $publisher = explode(' - ', $tituloString);
+                    $orgao = trim(end($publisher));
+                    
+                    if (empty($orgao)) {
+                        $orgao = 'Google News / Governo';
+                    }
+
+                    $resultados[] = [
+                        'titulo' => $tituloString,
+                        'codigo_externo' => 'googlenews_' . $codigoExterno,
+                        'orgao' => $orgao,
+                        'email_contato' => null, // GNews não provê isso
+                        'modalidade' => 'Oportunidade Listada (RSS)',
+                        'orcamento_global' => null,
+                        'publico_alvo' => null,
+                        'temas' => 'Notícia sobre edital de inovação',
+                        'trl_min' => null,
+                        'trl_max' => null,
+                        // Data de publicação do RSS ""pubDate"" convertida p BD
+                        'data_abertura' => date('Y-m-d', strtotime((string)$noticia->pubDate)),
+                        'data_encerramento' => null, // não se sabe só lendo noticia
+                        'status' => 'Em breve', // Oportunidade via news sempre entra pendente
+                        'url_oficial' => $linkString,
+                    ];
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error(""GoogleNewsRssScraper: Ocorreu um erro no parsing do XML: "" . $e->getMessage());
+        }
+
+        return $resultados;
+    }
+}
+","",0,"array"
+"Method:app/Scrapers/FinepScraper.php:scrape","scrape","app/Scrapers/FinepScraper.php",13,75,true,"     * Varrer o site oficial de editais da Finep.
+     */
+    public function scrape(): array
+    {
+        $url = 'http://www.finep.gov.br/chamadas-publicas?situacao=aberta';
+        $client = new Client();
+        
+        $resultados = [];
+
+        try {
+            // ""Pede"" o HTML da URL para o Goutte (ele simula um Browser!)
+            $crawler = $client->request('GET', $url);
+
+            // No Finep, eles usam a classe '.item' para cada edital no HTML.
+            // Para encontrar o título: .item h3 a (o link com titulo)
+            $crawler->filter('.item')->each(function ($node) use (&$resultados) {
+                
+                $tituloNode = $node->filter('h3 a');
+                if ($tituloNode->count() === 0) return;
+
+                $tituloString = trim($tituloNode->text());
+                $linkHref = $tituloNode->attr('href');
+                
+                if (strpos($linkHref, 'http') === false) {
+                    $linkHref = 'http://www.finep.gov.br' . $linkHref;
+                }
+
+                $partes = explode('/', $linkHref);
+                $codigoExterno = end($partes);
+                if (empty($codigoExterno)) {
+                     $codigoExterno = md5($linkHref);
+                }
+
+                // Extraindo o Tema real do HTML
+                $temasNode = $node->filter('.tema span');
+                $temasText = $temasNode->count() > 0 ? trim($temasNode->text()) : 'Inovação Geral';
+
+                // Extraindo Data de Publicação
+                $dataNode = $node->filter('.data_pub span');
+                $dataPub = $dataNode->count() > 0 ? \Carbon\Carbon::createFromFormat('d/m/Y', trim($dataNode->text()))->format('Y-m-d') : date('Y-m-d');
+
+                $resultados[] = [
+                    'titulo' => $tituloString,
+                    'codigo_externo' => 'finep_' . $codigoExterno,
+                    'orgao' => 'Finep',
+                    'email_contato' => null, 
+                    'modalidade' => 'Subvenção / Financiamento',
+                    'orcamento_global' => null, 
+                    'publico_alvo' => 'Empresas e ICTs',
+                    'temas' => $temasText,
+                    'trl_min' => null,
+                    'trl_max' => null,
+                    'data_abertura' => $dataPub, 
+                    'data_encerramento' => null,
+                    'status' => 'Aberto',
+                    'url_oficial' => $linkHref,
+                ];
+            });
+
+        } catch (\Exception $e) {
+            Log::error(""FinepScraper: Falha ao varrer Finep HTML: "" . $e->getMessage());
+        }
+
+        return $resultados;
+    }
+}
+","",0,"array"
+"Method:app/Providers/RouteServiceProvider.php:boot","boot","app/Providers/RouteServiceProvider.php",26,38,true,"     * @return void
+     */
+    public function boot()
+    {
+        $this->configureRateLimiting();
+
+        $this->routes(function () {
+            Route::middleware('api')
+                ->prefix('api')
+                ->group(base_path('routes/api.php'));
+
+            Route::middleware('web')
+                ->group(base_path('routes/web.php'));
+        });
+    }
+
+    /**","",0,""
+"Method:app/Providers/RouteServiceProvider.php:configureRateLimiting","configureRateLimiting","app/Providers/RouteServiceProvider.php",45,50,true,"     * @return void
+     */
+    protected function configureRateLimiting()
+    {
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+    }
+}
+","",0,""
+"Method:app/Providers/EventServiceProvider.php:boot","boot","app/Providers/EventServiceProvider.php",27,30,true,"     * @return void
+     */
+    public function boot()
+    {
+        //
+    }
+
+    /**","",0,""
+"Method:app/Providers/EventServiceProvider.php:shouldDiscoverEvents","shouldDiscoverEvents","app/Providers/EventServiceProvider.php",37,40,true,"     * @return bool
+     */
+    public function shouldDiscoverEvents()
+    {
+        return false;
+    }
+}
+","",0,"bool"
+"Method:app/Providers/BroadcastServiceProvider.php:boot","boot","app/Providers/BroadcastServiceProvider.php",14,19,true,"     * @return void
+     */
+    public function boot()
+    {
+        Broadcast::routes();
+
+        require base_path('routes/channels.php');
+    }
+}
+","",0,""
+"Method:app/Providers/AuthServiceProvider.php:boot","boot","app/Providers/AuthServiceProvider.php",23,28,true,"     * @return void
+     */
+    public function boot()
+    {
+        $this->registerPolicies();
+
+        //
+    }
+}
+","",0,""
+"Method:app/Providers/AppServiceProvider.php:register","register","app/Providers/AppServiceProvider.php",13,16,true,"     * @return void
+     */
+    public function register()
+    {
+        //
+    }
+
+    /**","",0,""
+"Method:app/Providers/AppServiceProvider.php:boot","boot","app/Providers/AppServiceProvider.php",23,26,true,"     * @return void
+     */
+    public function boot()
+    {
+        //
+    }
+}
+","",0,""
+"Method:app/Models/User.php:empresa","empresa","app/Models/User.php",44,47,true,"    ];
+
+    public function empresa()
+    {
+        return $this->hasOne(Empresa::class);
+    }
+}
+","hasOne(Empresa)",0,""
+"Method:app/Models/ProjetoResposta.php:projeto","projeto","app/Models/ProjetoResposta.php",14,17,true,"    protected $guarded = ['id'];
+
+    public function projeto()
+    {
+        return $this->belongsTo(Projeto::class);
+    }
+
+    public function pergunta()","belongsTo(Projeto)",0,""
+"Method:app/Models/ProjetoResposta.php:pergunta","pergunta","app/Models/ProjetoResposta.php",19,22,true,"    }
+
+    public function pergunta()
+    {
+        return $this->belongsTo(EditalPergunta::class, 'pergunta_id');
+    }
+}
+","belongsTo(EditalPergunta)",0,""
+"Method:app/Models/Projeto.php:empresa","empresa","app/Models/Projeto.php",13,16,true,"    protected $guarded = ['id'];
+
+    public function empresa()
+    {
+        return $this->belongsTo(Empresa::class);
+    }
+
+    public function edital()","belongsTo(Empresa)",0,""
+"Method:app/Models/Projeto.php:edital","edital","app/Models/Projeto.php",18,21,true,"    }
+
+    public function edital()
+    {
+        return $this->belongsTo(Edital::class);
+    }
+
+    public function respostas()","belongsTo(Edital)",0,""
+"Method:app/Models/Projeto.php:respostas","respostas","app/Models/Projeto.php",23,26,true,"    }
+
+    public function respostas()
+    {
+        return $this->hasMany(ProjetoResposta::class);
+    }
+
+    public function documentosGerados()","hasMany(ProjetoResposta)",0,""
+"Method:app/Models/Projeto.php:documentosGerados","documentosGerados","app/Models/Projeto.php",28,31,true,"    }
+
+    public function documentosGerados()
+    {
+        return $this->hasMany(DocumentoGerado::class);
+    }
+}
+","hasMany(DocumentoGerado)",0,""
+"Method:app/Models/Empresa.php:user","user","app/Models/Empresa.php",13,16,true,"    protected $guarded = ['id'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function projetos()","belongsTo(User)",0,""
+"Method:app/Models/Empresa.php:projetos","projetos","app/Models/Empresa.php",18,21,true,"    }
+
+    public function projetos()
+    {
+        return $this->hasMany(Projeto::class);
+    }
+}
+","hasMany(Projeto)",0,""
+"Method:app/Models/EditalSecao.php:edital","edital","app/Models/EditalSecao.php",14,17,true,"    protected $guarded = ['id'];
+
+    public function edital()
+    {
+        return $this->belongsTo(Edital::class);
+    }
+
+    public function perguntas()","belongsTo(Edital)",0,""
+"Method:app/Models/EditalSecao.php:perguntas","perguntas","app/Models/EditalSecao.php",19,22,true,"    }
+
+    public function perguntas()
+    {
+        return $this->hasMany(EditalPergunta::class, 'secao_id');
+    }
+}
+","hasMany(EditalPergunta)",0,""
+"Method:app/Models/EditalPergunta.php:secao","secao","app/Models/EditalPergunta.php",14,17,true,"    protected $guarded = ['id'];
+
+    public function secao()
+    {
+        return $this->belongsTo(EditalSecao::class, 'secao_id');
+    }
+}
+","belongsTo(EditalSecao)",0,""
+"Method:app/Models/Edital.php:secoes","secoes","app/Models/Edital.php",20,23,true,"    ];
+
+    public function secoes()
+    {
+        return $this->hasMany(EditalSecao::class);
+    }
+
+    public function projetos()","hasMany(EditalSecao)",0,""
+"Method:app/Models/Edital.php:projetos","projetos","app/Models/Edital.php",25,28,true,"    }
+
+    public function projetos()
+    {
+        return $this->hasMany(Projeto::class);
+    }
+}
+","hasMany(Projeto)",0,""
+"Method:app/Models/DocumentoGerado.php:projeto","projeto","app/Models/DocumentoGerado.php",14,17,true,"    protected $guarded = ['id'];
+
+    public function projeto()
+    {
+        return $this->belongsTo(Projeto::class);
+    }
+
+    public function secao()","belongsTo(Projeto)",0,""
+"Method:app/Models/DocumentoGerado.php:secao","secao","app/Models/DocumentoGerado.php",19,22,true,"    }
+
+    public function secao()
+    {
+        return $this->belongsTo(EditalSecao::class, 'secao_id');
+    }
+}
+","belongsTo(EditalSecao)",0,""
+"Method:app/Jobs/RunAllScrapersJob.php:__construct","__construct","app/Jobs/RunAllScrapersJob.php",20,23,true,"     * @return void
+     */
+    public function __construct()
+    {
+        //
+    }
+
+    /**","",0,""
+"Method:app/Jobs/RunAllScrapersJob.php:handle","handle","app/Jobs/RunAllScrapersJob.php",28,65,true,"     * Execute the job.
+     */
+    public function handle(): void
+    {
+        $rssScraper = new \App\Scrapers\GoogleNewsRssScraper();
+        $finepScraper = new \App\Scrapers\FinepScraper();
+
+        $scrapers = [$rssScraper, $finepScraper];
+        
+        $totalNovos = 0;
+        $totalAtualizados = 0;
+
+        foreach ($scrapers as $scraper) {
+            $editais = $scraper->scrape();
+                        
+            foreach ($editais as $editalData) {
+                try {
+                    // Adiciona o payload bruto aos dados
+                    $editalData['payload_origem'] = $editalData;
+                    $editalData['last_scanned_at'] = now();
+
+                    // Usa firstOrCreate para NUNCA sobrescrever dados bons com lixo de scraper
+                    $edital = \App\Models\Edital::firstOrCreate(
+                        ['codigo_externo' => $editalData['codigo_externo']], 
+                        $editalData 
+                    );
+
+                    // Se não foi recém criado, atualizamos pelo menos a data de sincronização
+                    if (!$edital->wasRecentlyCreated) {
+                        $edital->update(['last_scanned_at' => now()]);
+                    }
+                    
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error(""Erro ao inserir: "" . $e->getMessage());
+                }
+            }
+        }
+        
+        \Illuminate\Support\Facades\Log::info(""RunAllScrapersJob executado. {$totalNovos} novos, {$totalAtualizados} atualizados."");
+    }
+}
+","",0,"void"
+"Method:app/Exceptions/Handler.php:register","register","app/Exceptions/Handler.php",43,48,true,"     * @return void
+     */
+    public function register()
+    {
+        $this->reportable(function (Throwable $e) {
+            //
+        });
+    }
+}
+","",0,""
+"Method:app/Events/NovoEditalDetectado.php:__construct","__construct","app/Events/NovoEditalDetectado.php",23,26,true,"     * @return void
+     */
+    public function __construct(\App\Models\Edital $edital)
+    {
+        $this->edital = $edital;
+    }
+
+    /**","",1,""
+"Method:app/Events/NovoEditalDetectado.php:broadcastOn","broadcastOn","app/Events/NovoEditalDetectado.php",34,37,true,"     * @return \Illuminate\Broadcasting\Channel|array
+     */
+    public function broadcastOn()
+    {
+        return new \Illuminate\Broadcasting\Channel('editais');
+    }
+}
+","",0,""
+"Method:app/Console/Kernel.php:schedule","schedule","app/Console/Kernel.php",15,19,true,"     * @return void
+     */
+    protected function schedule(Schedule $schedule)
+    {
+        // Roda o Job mestre (orquestrador de Scrapers) todo dia 1h da manhã no servidor
+        $schedule->job(new \App\Jobs\RunAllScrapersJob())->dailyAt('01:00');
+    }
+
+    /**","",1,""
+"Method:app/Console/Kernel.php:commands","commands","app/Console/Kernel.php",26,31,true,"     * @return void
+     */
+    protected function commands()
+    {
+        $this->load(__DIR__.'/Commands');
+
+        require base_path('routes/console.php');
+    }
+}
+","",0,""
+"Method:tests/Feature/Auth/RegistrationTest.php:test_registration_screen_can_be_rendered","test_registration_screen_can_be_rendered","tests/Feature/Auth/RegistrationTest.php",12,17,true,"    use RefreshDatabase;
+
+    public function test_registration_screen_can_be_rendered(): void
+    {
+        $response = $this->get('/register');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_new_users_can_register(): void","",0,"void"
+"Method:tests/Feature/Auth/RegistrationTest.php:test_new_users_can_register","test_new_users_can_register","tests/Feature/Auth/RegistrationTest.php",19,30,true,"    }
+
+    public function test_new_users_can_register(): void
+    {
+        $response = $this->post('/register', [
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(RouteServiceProvider::HOME);
+    }
+}
+","",0,"void"
+"Method:tests/Feature/Auth/PasswordUpdateTest.php:test_password_can_be_updated","test_password_can_be_updated","tests/Feature/Auth/PasswordUpdateTest.php",13,31,true,"    use RefreshDatabase;
+
+    public function test_password_can_be_updated(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->from('/profile')
+            ->put('/password', [
+                'current_password' => 'password',
+                'password' => 'new-password',
+                'password_confirmation' => 'new-password',
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/profile');
+
+        $this->assertTrue(Hash::check('new-password', $user->refresh()->password));
+    }
+
+    public function test_correct_password_must_be_provided_to_update_password(): void","",0,"void"
+"Method:tests/Feature/Auth/PasswordUpdateTest.php:test_correct_password_must_be_provided_to_update_password","test_correct_password_must_be_provided_to_update_password","tests/Feature/Auth/PasswordUpdateTest.php",33,49,true,"    }
+
+    public function test_correct_password_must_be_provided_to_update_password(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->from('/profile')
+            ->put('/password', [
+                'current_password' => 'wrong-password',
+                'password' => 'new-password',
+                'password_confirmation' => 'new-password',
+            ]);
+
+        $response
+            ->assertSessionHasErrorsIn('updatePassword', 'current_password')
+            ->assertRedirect('/profile');
+    }
+}
+","",0,"void"
+"Method:tests/Feature/Auth/PasswordResetTest.php:test_reset_password_link_screen_can_be_rendered","test_reset_password_link_screen_can_be_rendered","tests/Feature/Auth/PasswordResetTest.php",14,19,true,"    use RefreshDatabase;
+
+    public function test_reset_password_link_screen_can_be_rendered(): void
+    {
+        $response = $this->get('/forgot-password');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_reset_password_link_can_be_requested(): void","",0,"void"
+"Method:tests/Feature/Auth/PasswordResetTest.php:test_reset_password_link_can_be_requested","test_reset_password_link_can_be_requested","tests/Feature/Auth/PasswordResetTest.php",21,30,true,"    }
+
+    public function test_reset_password_link_can_be_requested(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email]);
+
+        Notification::assertSentTo($user, ResetPassword::class);
+    }
+
+    public function test_reset_password_screen_can_be_rendered(): void","",0,"void"
+"Method:tests/Feature/Auth/PasswordResetTest.php:test_reset_password_screen_can_be_rendered","test_reset_password_screen_can_be_rendered","tests/Feature/Auth/PasswordResetTest.php",32,47,true,"    }
+
+    public function test_reset_password_screen_can_be_rendered(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email]);
+
+        Notification::assertSentTo($user, ResetPassword::class, function ($notification) {
+            $response = $this->get('/reset-password/'.$notification->token);
+
+            $response->assertStatus(200);
+
+            return true;
+        });
+    }
+
+    public function test_password_can_be_reset_with_valid_token(): void","",0,"void"
+"Method:tests/Feature/Auth/PasswordResetTest.php:test_password_can_be_reset_with_valid_token","test_password_can_be_reset_with_valid_token","tests/Feature/Auth/PasswordResetTest.php",49,69,true,"    }
+
+    public function test_password_can_be_reset_with_valid_token(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email]);
+
+        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
+            $response = $this->post('/reset-password', [
+                'token' => $notification->token,
+                'email' => $user->email,
+                'password' => 'password',
+                'password_confirmation' => 'password',
+            ]);
+
+            $response->assertSessionHasNoErrors();
+
+            return true;
+        });
+    }
+}
+","",0,"void"
+"Method:tests/Feature/Auth/PasswordConfirmationTest.php:test_confirm_password_screen_can_be_rendered","test_confirm_password_screen_can_be_rendered","tests/Feature/Auth/PasswordConfirmationTest.php",12,19,true,"    use RefreshDatabase;
+
+    public function test_confirm_password_screen_can_be_rendered(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get('/confirm-password');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_password_can_be_confirmed(): void","",0,"void"
+"Method:tests/Feature/Auth/PasswordConfirmationTest.php:test_password_can_be_confirmed","test_password_can_be_confirmed","tests/Feature/Auth/PasswordConfirmationTest.php",21,31,true,"    }
+
+    public function test_password_can_be_confirmed(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->post('/confirm-password', [
+            'password' => 'password',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHasNoErrors();
+    }
+
+    public function test_password_is_not_confirmed_with_invalid_password(): void","",0,"void"
+"Method:tests/Feature/Auth/PasswordConfirmationTest.php:test_password_is_not_confirmed_with_invalid_password","test_password_is_not_confirmed_with_invalid_password","tests/Feature/Auth/PasswordConfirmationTest.php",33,42,true,"    }
+
+    public function test_password_is_not_confirmed_with_invalid_password(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->post('/confirm-password', [
+            'password' => 'wrong-password',
+        ]);
+
+        $response->assertSessionHasErrors();
+    }
+}
+","",0,"void"
+"Method:tests/Feature/Auth/EmailVerificationTest.php:test_email_verification_screen_can_be_rendered","test_email_verification_screen_can_be_rendered","tests/Feature/Auth/EmailVerificationTest.php",16,25,true,"    use RefreshDatabase;
+
+    public function test_email_verification_screen_can_be_rendered(): void
+    {
+        $user = User::factory()->create([
+            'email_verified_at' => null,
+        ]);
+
+        $response = $this->actingAs($user)->get('/verify-email');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_email_can_be_verified(): void","",0,"void"
+"Method:tests/Feature/Auth/EmailVerificationTest.php:test_email_can_be_verified","test_email_can_be_verified","tests/Feature/Auth/EmailVerificationTest.php",27,46,true,"    }
+
+    public function test_email_can_be_verified(): void
+    {
+        $user = User::factory()->create([
+            'email_verified_at' => null,
+        ]);
+
+        Event::fake();
+
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            ['id' => $user->id, 'hash' => sha1($user->email)]
+        );
+
+        $response = $this->actingAs($user)->get($verificationUrl);
+
+        Event::assertDispatched(Verified::class);
+        $this->assertTrue($user->fresh()->hasVerifiedEmail());
+        $response->assertRedirect(RouteServiceProvider::HOME.'?verified=1');
+    }
+
+    public function test_email_is_not_verified_with_invalid_hash(): void","",0,"void"
+"Method:tests/Feature/Auth/EmailVerificationTest.php:test_email_is_not_verified_with_invalid_hash","test_email_is_not_verified_with_invalid_hash","tests/Feature/Auth/EmailVerificationTest.php",48,63,true,"    }
+
+    public function test_email_is_not_verified_with_invalid_hash(): void
+    {
+        $user = User::factory()->create([
+            'email_verified_at' => null,
+        ]);
+
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            ['id' => $user->id, 'hash' => sha1('wrong-email')]
+        );
+
+        $this->actingAs($user)->get($verificationUrl);
+
+        $this->assertFalse($user->fresh()->hasVerifiedEmail());
+    }
+}
+","",0,"void"
+"Method:tests/Feature/Auth/AuthenticationTest.php:test_login_screen_can_be_rendered","test_login_screen_can_be_rendered","tests/Feature/Auth/AuthenticationTest.php",13,18,true,"    use RefreshDatabase;
+
+    public function test_login_screen_can_be_rendered(): void
+    {
+        $response = $this->get('/login');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_users_can_authenticate_using_the_login_screen(): void","",0,"void"
+"Method:tests/Feature/Auth/AuthenticationTest.php:test_users_can_authenticate_using_the_login_screen","test_users_can_authenticate_using_the_login_screen","tests/Feature/Auth/AuthenticationTest.php",20,31,true,"    }
+
+    public function test_users_can_authenticate_using_the_login_screen(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(RouteServiceProvider::HOME);
+    }
+
+    public function test_users_can_not_authenticate_with_invalid_password(): void","",0,"void"
+"Method:tests/Feature/Auth/AuthenticationTest.php:test_users_can_not_authenticate_with_invalid_password","test_users_can_not_authenticate_with_invalid_password","tests/Feature/Auth/AuthenticationTest.php",33,43,true,"    }
+
+    public function test_users_can_not_authenticate_with_invalid_password(): void
+    {
+        $user = User::factory()->create();
+
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'wrong-password',
+        ]);
+
+        $this->assertGuest();
+    }
+}
+","",0,"void"
+"Method:app/View/Components/GuestLayout.php:render","render","app/View/Components/GuestLayout.php",12,15,true,"     * Get the view / contents that represents the component.
+     */
+    public function render(): View
+    {
+        return view('layouts.guest');
+    }
+}
+","",0,"View"
+"Method:app/View/Components/AppLayout.php:render","render","app/View/Components/AppLayout.php",12,15,true,"     * Get the view / contents that represents the component.
+     */
+    public function render(): View
+    {
+        return view('layouts.app');
+    }
+}
+","",0,"View"
+"Method:app/Scrapers/Contracts/ScraperInterface.php:scrape","scrape","app/Scrapers/Contracts/ScraperInterface.php",12,12,true,"     * @return array
+     */
+    public function scrape(): array;
+}
+","",0,"array"
+"Method:app/Http/Requests/UpdateEditalRequest.php:authorize","authorize","app/Http/Requests/UpdateEditalRequest.php",8,11,true,"class UpdateEditalRequest extends FormRequest
+{
+    public function authorize()
+    {
+        return true;
+    }
+
+    public function rules()","",0,""
+"Method:app/Http/Requests/UpdateEditalRequest.php:rules","rules","app/Http/Requests/UpdateEditalRequest.php",13,30,true,"    }
+
+    public function rules()
+    {
+        return [
+            'titulo' => 'sometimes|string|max:255',
+            'orgao' => 'nullable|string|max:255',
+            'email_contato' => 'nullable|email|max:255',
+            'modalidade' => 'nullable|string|max:255',
+            'orcamento_global' => 'nullable|numeric',
+            'publico_alvo' => 'nullable|string|max:255',
+            'temas' => 'nullable|string',
+            'trl_min' => 'nullable|string|max:10',
+            'trl_max' => 'nullable|string|max:10',
+            'data_abertura' => 'nullable|date',
+            'data_encerramento' => 'nullable|date',
+            'url_oficial' => 'nullable|url|max:255',
+            'status' => 'nullable|in:Aberto,Encerrado,Em breve',
+        ];
+    }
+}
+","",0,""
+"Method:app/Http/Requests/StoreEditalRequest.php:authorize","authorize","app/Http/Requests/StoreEditalRequest.php",8,11,true,"class StoreEditalRequest extends FormRequest
+{
+    public function authorize()
+    {
+        return true;
+    }
+
+    public function rules()","",0,""
+"Method:app/Http/Requests/StoreEditalRequest.php:rules","rules","app/Http/Requests/StoreEditalRequest.php",13,29,true,"    }
+
+    public function rules()
+    {
+        return [
+            'titulo' => 'required|string|max:255',
+            'orgao' => 'nullable|string|max:255',
+            'email_contato' => 'nullable|email|max:255',
+            'modalidade' => 'nullable|string|max:255',
+            'orcamento_global' => 'nullable|numeric',
+            'publico_alvo' => 'nullable|string|max:255',
+            'temas' => 'nullable|string',
+            'trl_min' => 'nullable|string|max:10',
+            'trl_max' => 'nullable|string|max:10',
+            'data_abertura' => 'nullable|date',
+            'data_encerramento' => 'nullable|date',
+            'url_oficial' => 'nullable|url|max:255',
+        ];
+    }
+}
+","",0,""
+"Method:app/Http/Requests/ProfileUpdateRequest.php:rules","rules","app/Http/Requests/ProfileUpdateRequest.php",15,21,true,"     * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'name' => ['string', 'max:255'],
+            'email' => ['email', 'max:255', Rule::unique(User::class)->ignore($this->user()->id)],
+        ];
+    }
+}
+","",0,"array<string,"
+"Method:app/Http/Controllers/ProfileController.php:edit","edit","app/Http/Controllers/ProfileController.php",16,21,true,"     * Display the user's profile form.
+     */
+    public function edit(Request $request): View
+    {
+        return view('profile.edit', [
+            'user' => $request->user(),
+        ]);
+    }
+
+    /**","",1,"View"
+"Method:app/Http/Controllers/ProfileController.php:update","update","app/Http/Controllers/ProfileController.php",26,37,true,"     * Update the user's profile information.
+     */
+    public function update(ProfileUpdateRequest $request): RedirectResponse
+    {
+        $request->user()->fill($request->validated());
+
+        if ($request->user()->isDirty('email')) {
+            $request->user()->email_verified_at = null;
+        }
+
+        $request->user()->save();
+
+        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+
+    /**","",1,"RedirectResponse"
+"Method:app/Http/Controllers/ProfileController.php:destroy","destroy","app/Http/Controllers/ProfileController.php",42,58,true,"     * Delete the user's account.
+     */
+    public function destroy(Request $request): RedirectResponse
+    {
+        $request->validateWithBag('userDeletion', [
+            'password' => ['required', 'current-password'],
+        ]);
+
+        $user = $request->user();
+
+        Auth::logout();
+
+        $user->delete();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return Redirect::to('/');
+    }
+}
+","",1,"RedirectResponse"
+"Method:app/Http/Controllers/OpenAIController.php:__construct","__construct","app/Http/Controllers/OpenAIController.php",16,19,true,"
+    // O Laravel injeta automaticamente o GeminiService aqui quando o controller é criado.
+    public function __construct(GeminiService $gemini)
+    {
+        $this->gemini = $gemini;
+    }
+
+    // -----------------------------------------------------------------------","",1,""
+"Method:app/Http/Controllers/OpenAIController.php:index","index","app/Http/Controllers/OpenAIController.php",26,124,true,"    // É uma escolha de design: mantém tudo em uma rota só ao invés de criar duas.
+    // -----------------------------------------------------------------------
+    public function index(Request $request)
+    {
+        // Lista fixa de modelos disponíveis para o usuário escolher.
+        // Está no código (hardcoded) para não precisar chamar a API do Google
+        // só para buscar os modelos disponíveis — economiza tempo e dinheiro.
+        $models = collect([
+            ['id' => 'gemini-flash-latest', 'value' => 'Google Gemini 1.5 Flash (Rápido)'],
+            ['id' => 'gemini-pro',          'value' => 'Google Gemini Pro (Complexo)']
+        ]);
+
+        // Só entra aqui se o usuário clicou em ""Gerar"" (método POST) E enviou um texto.
+        // Se for só um GET (abrindo a página), pula esse bloco inteiro.
+        if ($request->isMethod('post') && $request->search) {
+
+            // Pega o modelo escolhido pelo usuário. Se não escolheu nenhum, usa o Flash como padrão.
+            $modelId = $request->get('model', 'gemini-flash-latest');
+
+            // Busca a empresa do usuário logado para incluir os dados dela no prompt.
+            $empresa = \App\Models\Empresa::where('user_id', auth()->id())->first();
+
+            // Monta o prompt completo com contexto do edital + dados da empresa + texto do usuário.
+            $finalPrompt = $this->buildPrompt($request, $empresa);
+
+            // Gera uma chave única para o cache baseada no modelo + conteúdo do prompt.
+            // md5() transforma o prompt longo em uma string curta de 32 caracteres.
+            // Exemplo de chave: ""gemini_gemini-pro_a3f5c8d2e1...""
+            $key_search = ""gemini_{$modelId}_"" . md5($finalPrompt);
+
+            try {
+                // CACHE: Se esse exato prompt já foi processado nas últimas 12h,
+                // retorna o resultado salvo sem chamar a API. Economiza custo e tempo.
+                if (cache()->has($key_search)) {
+                    $info   = [""Info em cache (Gemini)""];
+                    $result = cache()->get($key_search);
+                } else {
+                    // Não está em cache: chama a API do Gemini de verdade.
+                    $result = $this->gemini->generateContent($finalPrompt, $modelId);
+
+                    // Se a IA não retornou nada, lança uma exceção para cair no catch abaixo.
+                    if (!$result) {
+                        throw new Exception(""A IA não retornou um resultado válido."");
+                    }
+
+                    $info = ['API' => ""Dados processados pela API do Google Gemini ""];
+
+                    // Salva o resultado no cache por 12 horas.
+                    // cache()->add() só salva se a chave ainda não existir (evita sobrescrever).
+                    cache()->add($key_search, $result, now()->addHours(12));
+                }
+
+                // Salva a proposta gerada no banco (cria Projeto + DocumentoGerado).
+                $projetoSalvo = $this->saveProposal($empresa, $request->get('edital_id'), $result, $request->search);
+
+                // Busca o objeto do edital se foi passado um edital_id na requisição.
+                // O operador ternário evita erro caso edital_id não exista.
+                $editalObj = $request->has('edital_id') ? \App\Models\Edital::find($request->edital_id) : null;
+
+                // Retorna a view com o resultado gerado pela IA e todos os dados relacionados.
+                return view('openai.index', [
+                    'models'            => $models,
+                    'result'            => $result,       // Texto da proposta gerada pela IA.
+                    'info'              => $info,         // Info se veio do cache ou da API.
+                    'selectedEditalName'=> $editalObj->titulo ?? """", // ?? """" evita erro se edital for null.
+                    'editalObj'         => $editalObj,
+                    'projetoSalvo'      => $projetoSalvo, // Projeto salvo no banco (para exibir link, etc).
+                ]);
+
+            } catch (Exception $e) {
+                // Se qualquer coisa deu errado (API fora do ar, etc):
+                // Loga o erro, volta para a página anterior mantendo o que o usuário tinha digitado,
+                // e exibe a mensagem de erro na tela.
+                Log::error(""Erro no OpenAIController: "" . $e->getMessage());
+                return redirect()->back()
+                    ->withInput()          // Mantém os campos do formulário preenchidos.
+                    ->with('error', $e->getMessage());
+            }
+        }
+
+        // -----------------------------------------------------------------------
+        // FLUXO GET: Usuário só abriu a página (não clicou em gerar ainda).
+        // -----------------------------------------------------------------------
+
+        // Se veio um edital_id na URL (?edital_id=5), busca o edital para pré-selecionar.
+        $editalObj = $request->has('edital_id') ? \App\Models\Edital::find($request->edital_id) : null;
+
+        
+... [truncated]","",1,""
+"Method:app/Http/Controllers/OpenAIController.php:buildPrompt","buildPrompt","app/Http/Controllers/OpenAIController.php",131,157,true,"    // O ""?"" antes de Empresa indica que o parâmetro pode ser null (nullable).
+    // -----------------------------------------------------------------------
+    private function buildPrompt(Request $request, ?\App\Models\Empresa $empresa): string
+    {
+        // Bloco 1: Contexto do edital (só adiciona se veio um edital_id).
+        $editalContext = """";
+        if ($request->has('edital_id')) {
+            $edital = \App\Models\Edital::find($request->edital_id);
+            if ($edital) {
+                // Formata as informações do edital como texto estruturado para a IA entender.
+                $editalContext = ""EDITAL DE REFERÊNCIA:\n- Título: {$edital->titulo}\n- Órgão: {$edital->orgao}\n- Temas: {$edital->temas}\n- Modalidade: {$edital->modalidade}\n"";
+            }
+        }
+
+        // Bloco 2: Dados da empresa (só adiciona se o usuário tem empresa cadastrada).
+        $empresaContext = """";
+        if ($empresa && $empresa->razao_social) {
+            $empresaContext = ""\nDADOS DA EMPRESA: {$empresa->razao_social} ({$empresa->cnpj})\n"" .
+                             ""TESE: {$empresa->solucao_proposta}\n"" .
+                             ""PROBLEMA: {$empresa->problema_que_resolve}\n"";
+        }
+
+        // Bloco 3: Instrução de comportamento — diz para a IA como ela deve agir.
+        $systemInstructions = ""Você é um consultor especialista em editais de inovação. Gere uma proposta formal em Markdown, estruturada com clareza e persuasão."";
+
+        // Junta tudo em um prompt final estruturado em camadas:
+        // [Como agir] + [Contexto do edital] + [Dados da empresa] + [O que o usuário digitou]
+        return ""{$systemInstructions}\n\n{$editalContext}\n{$empresaContext}\n\nPROPOSTA DO USUÁRIO:\n{$request->search}"";
+    }
+
+    // -----------------------------------------------------------------------","",2,"string"
+"Method:app/Http/Controllers/OpenAIController.php:saveProposal","saveProposal","app/Http/Controllers/OpenAIController.php",164,209,true,"    // Retorna o projeto salvo ou null se algo impedir o salvamento.
+    // -----------------------------------------------------------------------
+    private function saveProposal(?\App\Models\Empresa $empresa, $editalId, string $result, string $search)
+    {
+        // Não salva se não tiver empresa ou edital — não faz sentido salvar sem vínculo.
+        if (!$empresa || !$editalId) return null;
+
+        $editalObj = \App\Models\Edital::find($editalId);
+
+        // Se o edital_id não existe mais no banco, abandona.
+        if (!$editalObj) return null;
+
+        try {
+            // ANTI-CLONES: firstOrCreate garante que existe apenas UM projeto
+            // por combinação de empresa + edital.
+            // Se já existe → retorna o existente. Se não existe → cria novo.
+            // Primeiro array = condição de busca. Segundo array = valores para criar se não existir.
+            $projeto = \App\Models\Projeto::firstOrCreate(
+                [
+                    'empresa_id' => $empresa->id,
+                    'edital_id'  => $editalObj->id,
+                ],
+                [
+                    // Str::limit() corta o título em 80 chars para não estourar o banco.
+                    'titulo' => 'Proposta: ' . \Illuminate\Support\Str::limit($editalObj->titulo, 80),
+                    'status' => 'Em rascunho',
+                ]
+            );
+
+            // Cada geração cria um NOVO documento vinculado ao projeto.
+            // Assim o usuário mantém o histórico de todas as versões geradas,
+            // mesmo que o projeto (empresa+edital) já existisse.
+            \App\Models\DocumentoGerado::create([
+                'projeto_id'       => $projeto->id,
+                'conteudo_ia'      => $result, // Texto completo gerado pela IA.
+                'prompt_utilizado' => $search, // O que o usuário digitou (para referência futura).
+                'status'           => 'Pronto',
+            ]);
+
+            return $projeto;
+
+        } catch (Exception $e) {
+            // Se deu erro ao salvar, loga mas não quebra a aplicação.
+            // O usuário ainda vê o resultado da IA na tela — só não foi salvo.
+            Log::error('Erro ao salvar proposta: ' . $e->getMessage());
+            return null;
+        }
+    }
+}","",4,""
+"Method:app/Http/Controllers/EmpresaController.php:edit","edit","app/Http/Controllers/EmpresaController.php",10,18,true,"class EmpresaController extends Controller
+{
+    public function edit()
+    {
+        $empresa = Empresa::firstOrCreate(
+            ['user_id' => Auth::id()],
+            ['razao_social' => '', 'cnpj' => '']
+        );
+
+        return view('empresa.edit', compact('empresa'));
+    }
+
+    public function update(Request $request)","",0,""
+"Method:app/Http/Controllers/EmpresaController.php:update","update","app/Http/Controllers/EmpresaController.php",20,61,true,"    }
+
+    public function update(Request $request)
+    {
+        $validated = $request->validate([
+            // Dados da Empresa
+            'razao_social'          => 'required|string|max:255',
+            'cnpj'                  => 'required|string|max:20',
+            'porte'                 => 'nullable|string|max:50',
+            'setor'                 => 'nullable|string|max:100',
+            'estado'                => 'nullable|string|max:2',
+            'n_funcionarios'        => 'nullable|integer|min:0',
+            'faturamento_anual'     => 'nullable|string|max:100',
+            // Representante Legal
+            'telefone'              => 'nullable|string|max:20',
+            'email_contato'         => 'nullable|email|max:255',
+            'representante_legal'   => 'nullable|string|max:255',
+            'cargo_representante'   => 'nullable|string|max:100',
+            // Tese de Captação
+            'problema_que_resolve'      => 'nullable|string|max:2000',
+            'quem_e_impactado'          => 'nullable|string|max:1000',
+            'solucao_proposta'          => 'nullable|string|max:2000',
+            'como_funciona_na_pratica'  => 'nullable|string|max:2000',
+            'estagio_solucao'           => 'nullable|string|max:50',
+            'diferenciais'              => 'nullable|string|max:2000',
+            'propriedade_intelectual'   => 'nullable|string|max:2000',
+            'historico_inovacao'        => 'nullable|string|max:2000',
+            'segmento_mercado'          => 'nullable|string|max:100',
+            'publico_alvo_empresa'      => 'nullable|string|max:255',
+            // Impactos
+            'impacto_economico'         => 'nullable|string|max:2000',
+            'impacto_social'            => 'nullable|string|max:2000',
+            'impacto_ambiental'         => 'nullable|string|max:2000',
+            'metricas_indicadores'      => 'nullable|string|max:2000',
+            // Financeiro
+            'tipo_recurso_interesse'        => 'nullable|string|max:100',
+            'como_recurso_sera_utilizado'   => 'nullable|string|max:2000',
+        ]);
+
+        $empresa = Empresa::where('user_id', Auth::id())->first();
+        $empresa->update($validated);
+
+        return redirect()->route('empresa.edit')->with('success', 'Dados da empresa atualizados com sucesso!');
+    }
+}
+","",1,""
+"Method:app/Http/Controllers/EditalController.php:__construct","__construct","app/Http/Controllers/EditalController.php",18,21,true,"    // O Laravel injeta automaticamente o GeminiService aqui quando o controller é criado.
+    // Você não precisa chamar ""new GeminiService()"" em lugar nenhum — o Laravel faz isso sozinho.
+    public function __construct(GeminiService $gemini)
+    {
+        $this->gemini = $gemini;
+    }
+
+    // -----------------------------------------------------------------------","",1,""
+"Method:app/Http/Controllers/EditalController.php:index","index","app/Http/Controllers/EditalController.php",26,61,true,"    // LISTAGEM DE EDITAIS (com filtros dinâmicos e paginação)
+    // -----------------------------------------------------------------------
+    public function index(Request $request)
+    {
+        // Inicia um query builder sem executar nada ainda.
+        // Permite adicionar filtros condicionalmente antes de ir ao banco.
+        $query = Edital::query();
+
+        // when() só adiciona o WHERE se o valor do filtro existir na requisição.
+        // Se o usuário não preencheu o campo ""busca"", essa linha é ignorada completamente.
+        // O LIKE ""%texto%"" encontra o valor em qualquer posição da coluna.
+        $query->when($request->busca, fn($q, $busca) => $q->where('titulo', 'like', ""%{$busca}%"")->orWhere('temas', 'like', ""%{$busca}%""));
+
+        // Mesmo esquema: só filtra por status/orgao/modalidade se o usuário escolheu um.
+        $query->when($request->status,    fn($q, $status) => $q->where('status', $status));
+        $query->when($request->orgao,     fn($q, $orgao)  => $q->where('orgao', $orgao));
+        $query->when($request->modalidade,fn($q, $mod)    => $q->where('modalidade', $mod));
+
+        // Executa a query com ordenação e paginação de 12 itens por página.
+        // withQueryString() mantém os filtros na URL ao trocar de página (?busca=x&status=y).
+        $editais = $query->orderBy('created_at', 'desc')->paginate(12)->withQueryString();
+
+        // Busca os valores únicos de órgão e modalidade para popular os <select> de filtro.
+        // distinct() evita repetições, whereNotNull() evita itens vazios, sort() ordena alfabeticamente.
+        $orgaos     = Edital::select('orgao')->distinct()->whereNotNull('orgao')->pluck('orgao')->sort();
+        $modalidades= Edital::select('modalidade')->distinct()->whereNotNull('modalidade')->pluck('modalidade')->sort();
+
+        // Se a requisição veio com header ""Accept: application/json"" (ex: app mobile, fetch JS),
+        // retorna JSON. Caso contrário, retorna a página HTML normalmente.
+        // Isso evita precisar criar uma rota separada só para API.
+        if ($request->wantsJson()) {
+            return response()->json($editais);
+        }
+
+        // Envia os dados para a view Blade usando compact(),
+        // que transforma as variáveis em um array ['editais' => $editais, ...].
+        return view('editais.index', compact('editais', 'orgaos', 'modalidades'));
+    }
+
+    // -----------------------------------------------------------------------","",1,""
+"Method:app/Http/Controllers/EditalController.php:create","create","app/Http/Controllers/EditalController.php",66,70,true,"    // ABRE O FORMULÁRIO DE CRIAÇÃO
+    // -----------------------------------------------------------------------
+    public function create()
+    {
+        // Apenas abre a view do formulário — sem dados para buscar.
+        return view('editais.create');
+    }
+
+    // -----------------------------------------------------------------------","",0,""
+"Method:app/Http/Controllers/EditalController.php:store","store","app/Http/Controllers/EditalController.php",75,89,true,"    // SALVA UM NOVO EDITAL NO BANCO
+    // -----------------------------------------------------------------------
+    public function store(StoreEditalRequest $request)
+    {
+        // StoreEditalRequest é uma classe separada que contém as regras de validação.
+        // validated() retorna APENAS os campos que passaram na validação,
+        // protegendo contra envio de campos não autorizados (mass assignment).
+        $edital = Edital::create($request->validated());
+
+        // Se for uma requisição de API, retorna o edital criado em JSON com status 201 (Created).
+        if ($request->wantsJson()) {
+            return response()->json($edital, 201);
+        }
+
+        // Redireciona para a listagem com uma mensagem de sucesso na sessão.
+        return redirect()->route('editais.index')->with('success', 'Edital cadastrado com sucesso.');
+    }
+
+    // -----------------------------------------------------------------------","",1,""
+"Method:app/Http/Controllers/EditalController.php:show","show","app/Http/Controllers/EditalController.php",94,107,true,"    // EXIBE UM EDITAL (com enriquecimento automático por IA)
+    // -----------------------------------------------------------------------
+    public function show(Edital $edital)
+    {
+        // O Laravel já buscou o edital pelo ID da URL automaticamente (Route Model Binding).
+        
+        // Se o edital ainda não passou pela IA (campo ia_enriquecido = false),
+        // chama o método privado que usa o Gemini para preencher os campos faltantes.
+        if (!$edital->ia_enriquecido) {
+            $this->enriquecerComIA($edital);
+        }
+
+        // Ao invés de mostrar uma página de detalhes, redireciona direto para
+        // o gerador de propostas com o edital já pré-selecionado.
+        return redirect()->route('openai.index', ['edital_id' => $edital->id]);
+    }
+
+    // -----------------------------------------------------------------------","",1,""
+"Method:app/Http/Controllers/EditalController.php:enriquecerComIA","enriquecerComIA","app/Http/Controllers/EditalController.php",113,199,true,"    // private = só pode ser chamado dentro dessa própria classe
+    // -----------------------------------------------------------------------
+    private function enriquecerComIA(Edital $edital): void
+    {
+        // Monta o prompt com os dados que já temos do edital.
+        // Pede para a IA retornar APENAS JSON, sem markdown ou texto extra.
+        $prompt = ""Analise o título deste edital de inovação/fomento e extraia informações estruturadas.
+        Título: \""{$edital->titulo}\""
+        Órgão: \""{$edital->orgao}\""
+
+        Retorne APENAS um JSON válido (sem markdown, sem ```), exatamente neste formato:
+        {
+          \""temas\"": \""lista dos temas principais separados por vírgula\"",
+          \""objetivos\"": \""descrição dos possíveis objetivos deste edital em 2-3 frases\"",
+          \""requisitos\"": \""requisitos típicos para participar deste tipo de edital em 2-3 frases\"",
+          \""modalidade\"": \""tipo de financiamento ou modalidade (ex: Subvenção, Financiamento, Bolsa, Encomenda)\"",
+          \""publico_alvo\"": \""quem pode participar (ex: Startups, MPEs, ICTs, Empresas de Base Tecnológica)\""
+        }
+        Baseie-se no contexto brasileiro de editais de inovação. Seja específico e realista."";
+
+        try {
+            // Envia o prompt para o Gemini e recebe o texto bruto de resposta.
+            $rawBody = $this->gemini->generateContent($prompt);
+
+            // Se a IA não retornou nada, loga um aviso e abandona a função.
+            if (!$rawBody) {
+                Log::warning(""IA Enriquecimento falhou para edital #{$edital->id}"");
+                return;
+            }
+
+            // ESTRATÉGIA 1: Tenta encontrar um objeto JSON { ... } dentro do texto bruto.
+            // A regex lida com objetos aninhados graças ao (?R) que é recursão.
+            if (preg_match('/\{(?:[^{}]|(?R))*\}/s', $rawBody, $matches)) {
+                $jsonString = $matches[0]; // Pega o JSON encontrado.
+            } else {
+                // ESTRATÉGIA 2 (fallback): Remove blocos de markdown ```json ... ```
+                // que a IA às vezes coloca ao redor do JSON.
+                $jsonString = preg_replace('/```json|```/', '', $rawBody);
+            }
+
+            // Converte o JSON em array PHP. O ""true"" é obrigatório para virar array (sem ele vira objeto).
+            // trim() remove espaços e quebras de linha que possam ter sobrado nas bordas.
+            $dados = json_decode(trim($jsonString), true);
+
+            // Se o JSON era inválido e json_decode retornou null,
+            // apenas marca o edital como ""já processado"" para não tentar de novo na próxima visita.
+            if (!is_array($dados)) {
+                $edital->update(['ia_enriquecido' => true]);
+                return;
+            }
+
+            // Começa o array de atualização já com ia_enriquecido = true.
+            // Isso garante que o campo seja marcado independente do que aconteça abaixo.
+            $updateData = ['ia_enriquecido' => true];
+
+            // BLINDAGEM: Cada campo só é atualizado se:
+            // 1. A IA retornou um valor para ele (!empty)
+            // 2. O campo está vazio OU contém um valor genérico padrão
+            // Isso NUNCA sobrescreve dados que o usuário preencheu manualmente.
+
+            if (!empty($dados['temas']) && (empty($edital->temas) || $edital->temas === 'Inovação Geral' || $edital->temas === 'Notícia sobre edital de inovação')) {
+                $updateData['temas'] = $dados['temas'];
+            }
+            if (!empty($dados['objetivos']) && empty($edital->objetivos)) {
+                $updateData['objetivos'] = $dados['objetivos'];
+            }
+            if (!empty($dados['requisitos']) && empty($edital->requisitos)) {
+                $updateData['requisitos'] = $dados['requisitos'];
+            }
+            if (!empty($dados['modalidade']) && (empty($edital->modalidade) || $edital->modalidade === 'Geral' || $edital->modalidade === 'Oportunidade Listada (RSS)')) {
+                $updateData['modalidade'] = $dados['modalidade'];
+            }
+            if (!empty($dados['publico_alvo']) && empty($edital->publico_alvo)) {
+                $updateData['publico_alvo'] = $dados['publico_alvo'];
+            }
+
+            // Salva todos os campos atualizados no banco de uma vez.
+            $edital->update($updateData);
+
+            // Recarrega o objeto PHP com os dados frescos do banco.
+            // Necessário porque update() salva no banco mas não atualiza o objeto em memória.
+            $edital->refresh();
+
+        } catch (\Exception $e) {
+            // Se qualquer erro aconteceu, apenas loga e deixa a aplicação continuar.
+            // O usuário não vê nenhum erro — o edital simplesmente fica sem enriquecimento.
+            Log::warning(""Exceção no enriquecimento IA do edital #{$edital->id}: "" . $e->getMessage());
+        }
+    }
+
+    // -----------------------------------------------------------------------","",1,"void"
+"Method:app/Http/Controllers/EditalController.php:edit","edit","app/Http/Controllers/EditalController.php",204,209,true,"    // ABRE O FORMULÁRIO DE EDIÇÃO
+    // -----------------------------------------------------------------------
+    public function edit(Edital $edital)
+    {
+        // O Laravel já buscou o edital pelo ID da URL (Route Model Binding).
+        // Passa o edital para a view poder preencher os campos do formulário.
+        return view('editais.edit', compact('edital'));
+    }
+
+    // -----------------------------------------------------------------------","",1,""
+"Method:app/Http/Controllers/EditalController.php:update","update","app/Http/Controllers/EditalController.php",214,224,true,"    // ATUALIZA UM EDITAL EXISTENTE NO BANCO
+    // -----------------------------------------------------------------------
+    public function update(UpdateEditalRequest $request, Edital $edital)
+    {
+        // validated() garante que só os campos permitidos pelo UpdateEditalRequest sejam salvos.
+        $edital->update($request->validated());
+
+        if ($request->wantsJson()) {
+            return response()->json($edital);
+        }
+
+        return redirect()->route('editais.index')->with('success', 'Edital atualizado com sucesso.');
+    }
+
+    // -----------------------------------------------------------------------","",2,""
+"Method:app/Http/Controllers/EditalController.php:destroy","destroy","app/Http/Controllers/EditalController.php",229,241,true,"    // DELETA UM EDITAL
+    // -----------------------------------------------------------------------
+    public function destroy(Edital $edital)
+    {
+        $edital->delete();
+
+        // Aqui usa request() global ao invés de injetar Request no método,
+        // mas o resultado é o mesmo — verifica se quer JSON.
+        if (request()->wantsJson()) {
+            // Status 204 = ""No Content"" — sucesso, mas sem corpo de resposta. Padrão REST para DELETE.
+            return response()->json(null, 204);
+        }
+
+        return redirect()->route('editais.index')->with('success', 'Edital excluído com sucesso.');
+    }
+
+    // -----------------------------------------------------------------------","",1,""
+"Method:app/Http/Controllers/EditalController.php:manualScrape","manualScrape","app/Http/Controllers/EditalController.php",246,265,true,"    // DISPARA A VARREDURA MANUAL DE NOVOS EDITAIS (scraping)
+    // -----------------------------------------------------------------------
+    public function manualScrape()
+    {
+        // Busca no cache quando foi a última vez que a varredura rodou.
+        $lastRun = cache()->get('last_manual_scrape');
+
+        // Se rodou há menos de 5 minutos, bloqueia e avisa o usuário.
+        // Isso evita sobrecarregar o servidor com múltiplas varreduras seguidas.
+        if ($lastRun && $lastRun > now()->subMinutes(5)) {
+            return redirect()->route('editais.index')->with('info', 'A varredura foi realizada há menos de 5 minutos. Tente novamente em breve.');
+        }
+
+        // dispatchSync() executa o Job AGORA, na hora, sem fila de espera.
+        // É como chamar o código do Job diretamente, mas de forma organizada.
+        \App\Jobs\RunAllScrapersJob::dispatchSync();
+
+        // Registra no cache o horário atual. O cache expira em 30 minutos automaticamente.
+        cache()->put('last_manual_scrape', now(), now()->addMinutes(30));
+
+        return redirect()->route('editais.index')->with('success', 'Varredura concluída! O Radar foi atualizado.');
+    }
+
+    // -----------------------------------------------------------------------","",0,""
+"Method:app/Http/Controllers/EditalController.php:analyzeIA","analyzeIA","app/Http/Controllers/EditalController.php",271,325,true,"    // Diferença do privateAnalyzeIA: este é público e faz redirect com mensagem para o usuário.
+    // -----------------------------------------------------------------------
+    public function analyzeIA(Edital $edital)
+    {
+        // Monta o prompt pedindo um JSON com seções e perguntas típicas desse tipo de edital.
+        $prompt = ""Analise o título e contexto deste edital de inovação: '{$edital->titulo}'. Temas: {$edital->temas}. 
+        Gere uma estrutura JSON de seções e perguntas que normalmente são pedidas em propostas para este tipo de edital (ex: Dados da Empresa, Descrição Técnica, Orçamento, Impacto).
+        Retorne APENAS um JSON no formato: [{\""titulo\"": \""Nome da Seção\"", \""perguntas\"": [\""Pergunta 1\"", \""Pergunta 2\""]}, ...]. No máximo 4 seções."";
+
+        try {
+            $rawBody = $this->gemini->generateContent($prompt);
+
+            // Aqui usa throw ao invés de return — porque é um método público que precisa
+            // mostrar o erro para o usuário, não silenciar como o método privado faz.
+            if (!$rawBody) {
+                throw new \Exception(""A IA não retornou uma resposta válida."");
+            }
+
+            // Mesma lógica de extração do JSON: tenta regex primeiro, remove markdown como fallback.
+            if (preg_match('/\[(?:[^[\]]|(?R))*\]/s', $rawBody, $matches)) {
+                $jsonString = $matches[0];
+            } else {
+                $jsonString = preg_replace('/```json|```/', '', $rawBody);
+            }
+
+            $secoesArray = json_decode(trim($jsonString), true);
+
+            if (!is_array($secoesArray)) {
+                throw new \Exception(""O formato retornado pela IA é inválido."");
+            }
+
+            // Para cada seção retornada pela IA, cria no banco vinculada ao edital.
+            foreach ($secoesArray as $index => $secaoData) {
+                $secao = $edital->secoes()->create([
+                    'titulo' => $secaoData['titulo'],
+                    'ordem'  => $index + 1 // $index começa em 0, somamos 1 para ordem começar em 1.
+                ]);
+
+                // Para cada pergunta dentro da seção, cria vinculada à seção acima.
+                foreach ($secaoData['perguntas'] as $qIndex => $perguntaTexto) {
+                    $secao->perguntas()->create([
+                        'texto' => $perguntaTexto,
+                        'tipo'  => 'textarea', // Tipo fixo: sempre campo de texto longo.
+                        'ordem' => $qIndex + 1
+                    ]);
+                }
+            }
+
+            // Redireciona de volta para o edital com mensagem de sucesso.
+            return redirect()->route('editais.show', $edital)->with('success', 'Estrutura mapeada com sucesso!');
+
+        } catch (\Exception $e) {
+            // Se deu erro, loga e redireciona com mensagem de erro visível para o usuário.
+            Log::error(""Erro no analyzeIA: "" . $e->getMessage());
+            return redirect()->route('editais.show', $edital)->with('error', 'Erro ao processar IA: ' . $e->getMessage());
+        }
+    }
+}","",1,""
+"Method:app/Http/Controllers/DashboardController.php:index","index","app/Http/Controllers/DashboardController.php",11,41,true,"class DashboardController extends Controller
+{
+    public function index()
+    {
+        $empresa = Empresa::where('user_id', Auth::id())->first();
+        
+        $projetos = collect();
+        $totalPropostas = 0;
+        $rascunhos = 0;
+
+        if ($empresa) {
+            $projetos = Projeto::where('empresa_id', $empresa->id)
+                ->with(['edital', 'documentosGerados'])//Eager loading — carrega os relacionamentos edital e documentosGerados em uma única query adicional, evitando o problema N+1
+                ->latest()//ordena Desc
+                ->take(10)//limita 10 por pag
+                ->get();//executar a query
+            
+            $totalPropostas = Projeto::where('empresa_id', $empresa->id)->count();
+            $rascunhos = Projeto::where('empresa_id', $empresa->id)->where('status', 'Em rascunho')->count();
+        }
+
+        $totalEditais = Edital::count();
+        $editaisAbertos = Edital::where('status', 'Aberto')->count();
+
+        return view('dashboard', compact(
+            'projetos',
+            'totalEditais',
+            'editaisAbertos', 
+            'totalPropostas',
+            'rascunhos',
+            'empresa'
+        ));
+    }
+}
+","",0,""
+"Method:app/Http/Middleware/TrustHosts.php:hosts","hosts","app/Http/Middleware/TrustHosts.php",13,18,true,"     * @return array<int, string|null>
+     */
+    public function hosts()
+    {
+        return [
+            $this->allSubdomainsOfApplicationUrl(),
+        ];
+    }
+}
+","",0,"array<int,"
+"Method:app/Http/Middleware/RedirectIfAuthenticated.php:handle","handle","app/Http/Middleware/RedirectIfAuthenticated.php",19,30,true,"     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     */
+    public function handle(Request $request, Closure $next, ...$guards)
+    {
+        $guards = empty($guards) ? [null] : $guards;
+
+        foreach ($guards as $guard) {
+            if (Auth::guard($guard)->check()) {
+                return redirect(RouteServiceProvider::HOME);
+            }
+        }
+
+        return $next($request);
+    }
+}
+","",0,""
+"Method:app/Http/Middleware/Authenticate.php:redirectTo","redirectTo","app/Http/Middleware/Authenticate.php",14,19,true,"     * @return string|null
+     */
+    protected function redirectTo($request)
+    {
+        if (! $request->expectsJson()) {
+            return route('login');
+        }
+    }
+}
+","",1,"string"
+"Method:app/Console/Commands/ScrapeEditaisCommand.php:handle","handle","app/Console/Commands/ScrapeEditaisCommand.php",19,108,true,"    // É o equivalente ao index() de um controller, mas para comandos.
+    // -----------------------------------------------------------------------
+    public function handle()
+    {
+        // $this->info() imprime uma mensagem em VERDE no terminal.
+        $this->info(""Iniciando varredura em todos os Scrapers configurados..."");
+
+        // Instancia os scrapers disponíveis.
+        // Cada scraper sabe buscar editais de uma fonte diferente.
+        $rssScraper   = new \App\Scrapers\GoogleNewsRssScraper(); // Busca via Google News RSS
+        $finepScraper = new \App\Scrapers\FinepScraper();         // Busca direto no site da FINEP
+
+        // Coloca os scrapers num array para poder rodar todos com um loop.
+        // Vantagem: para adicionar um novo scraper no futuro, basta incluir aqui.
+        $scrapers = [$rssScraper, $finepScraper];
+
+        // Array que vai acumular todos os editais encontrados por todos os scrapers.
+        $editais = [];
+
+        foreach ($scrapers as $scraper) {
+            // get_class() retorna o nome da classe como string para exibir no terminal.
+            // Exemplo: ""App\Scrapers\FinepScraper""
+            $this->info(""Rodando scraper: "" . get_class($scraper));
+
+            // Chama o método scrape() de cada scraper e junta os resultados no array geral.
+            // array_merge() combina o que já temos com o que o scraper atual retornou.
+            $editais = array_merge($editais, $scraper->scrape());
+        }
+
+        // Se nenhum scraper retornou nada, avisa em AMARELO e encerra.
+        // return 0 = terminou sem erro (convenção Unix: 0 = sucesso).
+        if (empty($editais)) {
+            $this->warn(""Nenhum edital retornado na busca."");
+            return 0;
+        }
+
+        $this->info(""Sucesso! Encontrei "" . count($editais) . "" editais listados via Google News."");
+
+        // Contador de editais novos para exibir no resumo final.
+        $novos = 0;
+
+        foreach ($editais as $editalData) {
+            // O try/catch está DENTRO do loop propositalmente.
+            // Se um edital com dado corrompido falhar, o próximo continua normalmente.
+            try {
+                // Salva o dado bruto original dentro do próprio registro como histórico.
+                // Útil para debugar de onde veio cada informação no futuro.
+                $editalData['payload_origem'] = $editalData;
+
+                // Registra o momento exato em que esse edital foi encontrado.
+                $editalData['last_scanned_at'] = now();
+
+                // ANTI-DUPLICATA: firstOrCreate garante que o mesmo edital nunca é inserido duas vezes.
+                // Primeiro array  → condição de busca: procura pelo codigo_externo (ID único do site de origem).
+                // Segundo array   → dados para criar SE o edital ainda não existir no banco.
+                // Se já existe    → retorna o existente sem alterar nada.
+                // Se não existe   → cria um novo registro com os dados do scraper.
+                $edital = \App\Models\Edital::firstOrCreate(
+                    ['codigo_externo' => $editalData['codigo_externo']],
+                    $editalData
+                );
+
+                // wasRecentlyCreated é uma propriedade do Eloquent.
+                // Vale true se o registro acabou de ser criado agora nessa execução.
+                // Vale false se já existia no banco antes.
+                if ($edital->wasRecentlyCreated) {
+                    $novos++;
+                    // $this->line() imprime em BRANCO (cor padrão) no terminal.
+                    $this->line(""✨ Novo edital: {$editalData['titulo']}"");
+                } else {
+                    // Se o edital já existia, apenas atualiza a data da última varredura.
+                    // Não sobrescreve nenhum outro dado — protege informações já enriquecidas.
+                    $edital->update(['last_scanned_at' => now()]);
+                }
+
+            } catch (\Throwable $e) {
+                // Usa \Throwable ao invés de \Exception porque Throwable captura TUDO,
+                // inclusive erros fatais do PHP que Exception não pegaria.
+                // $this->error() imprime em VERMELHO no terminal.
+                $this->error(""Erro ao inserir: "" . $e->getMessage());
+
+                // Loga o erro no arquivo de log do Laravel para consulta posterior.
+                \Illuminate\Support\Facades\Log::error(""Erro ao inserir via comando: "" . $e->getMessage());
+            }
+        }
+
+        $this->info(""Varredura Concluída. Mágica feita! {$novos} registros novos adicionados."");
+
+        // Command::SUCCESS é uma constante do Laravel que vale 0.
+        // É a forma mais legível de dizer ""terminou com sucesso"".
+        return Command::SUCCESS;
+    }
+}","",0,""
+"Method:app/Http/Requests/Auth/LoginRequest.php:authorize","authorize","app/Http/Requests/Auth/LoginRequest.php",16,19,true,"     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**","",0,"bool"
+"Method:app/Http/Requests/Auth/LoginRequest.php:rules","rules","app/Http/Requests/Auth/LoginRequest.php",26,32,true,"     * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
+        ];
+    }
+
+    /**","",0,"array<string,"
+"Method:app/Http/Requests/Auth/LoginRequest.php:authenticate","authenticate","app/Http/Requests/Auth/LoginRequest.php",39,52,true,"     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function authenticate(): void
+    {
+        $this->ensureIsNotRateLimited();
+
+        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => trans('auth.failed'),
+            ]);
+        }
+
+        RateLimiter::clear($this->throttleKey());
+    }
+
+    /**","",0,"void"
+"Method:app/Http/Requests/Auth/LoginRequest.php:ensureIsNotRateLimited","ensureIsNotRateLimited","app/Http/Requests/Auth/LoginRequest.php",59,75,true,"     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function ensureIsNotRateLimited(): void
+    {
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+            return;
+        }
+
+        event(new Lockout($this));
+
+        $seconds = RateLimiter::availableIn($this->throttleKey());
+
+        throw ValidationException::withMessages([
+            'email' => trans('auth.throttle', [
+                'seconds' => $seconds,
+                'minutes' => ceil($seconds / 60),
+            ]),
+        ]);
+    }
+
+    /**","",0,"void"
+"Method:app/Http/Requests/Auth/LoginRequest.php:throttleKey","throttleKey","app/Http/Requests/Auth/LoginRequest.php",80,83,true,"     * Get the rate limiting throttle key for the request.
+     */
+    public function throttleKey(): string
+    {
+        return Str::transliterate(Str::lower($this->input('email')).'|'.$this->ip());
+    }
+}
+","",0,"string"
+"Method:app/Http/Controllers/Auth/VerifyEmailController.php:__invoke","__invoke","app/Http/Controllers/Auth/VerifyEmailController.php",15,26,true,"     * Mark the authenticated user's email address as verified.
+     */
+    public function __invoke(EmailVerificationRequest $request): RedirectResponse
+    {
+        if ($request->user()->hasVerifiedEmail()) {
+            return redirect()->intended(RouteServiceProvider::HOME.'?verified=1');
+        }
+
+        if ($request->user()->markEmailAsVerified()) {
+            event(new Verified($request->user()));
+        }
+
+        return redirect()->intended(RouteServiceProvider::HOME.'?verified=1');
+    }
+}
+","",1,"RedirectResponse"
+"Method:app/Http/Controllers/Auth/RegisteredUserController.php:create","create","app/Http/Controllers/Auth/RegisteredUserController.php",20,23,true,"     * Display the registration view.
+     */
+    public function create(): View
+    {
+        return view('auth.register');
+    }
+
+    /**","",0,"View"
+"Method:app/Http/Controllers/Auth/RegisteredUserController.php:store","store","app/Http/Controllers/Auth/RegisteredUserController.php",30,49,true,"     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        event(new Registered($user));
+
+        Auth::login($user);
+
+        return redirect(RouteServiceProvider::HOME);
+    }
+}
+","",1,"RedirectResponse"
+"Method:app/Http/Controllers/Auth/PasswordResetLinkController.php:create","create","app/Http/Controllers/Auth/PasswordResetLinkController.php",15,18,true,"     * Display the password reset link request view.
+     */
+    public function create(): View
+    {
+        return view('auth.forgot-password');
+    }
+
+    /**","",0,"View"
+"Method:app/Http/Controllers/Auth/PasswordResetLinkController.php:store","store","app/Http/Controllers/Auth/PasswordResetLinkController.php",25,42,true,"     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        // We will send the password reset link to this user. Once we have attempted
+        // to send the link, we will examine the response then see the message we
+        // need to show to the user. Finally, we'll send out a proper response.
+        $status = Password::sendResetLink(
+            $request->only('email')
+        );
+
+        return $status == Password::RESET_LINK_SENT
+                    ? back()->with('status', __($status))
+                    : back()->withInput($request->only('email'))
+                            ->withErrors(['email' => __($status)]);
+    }
+}
+","",1,"RedirectResponse"
+"Method:app/Http/Controllers/Auth/PasswordController.php:update","update","app/Http/Controllers/Auth/PasswordController.php",15,27,true,"     * Update the user's password.
+     */
+    public function update(Request $request): RedirectResponse
+    {
+        $validated = $request->validateWithBag('updatePassword', [
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', Password::defaults(), 'confirmed'],
+        ]);
+
+        $request->user()->update([
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        return back()->with('status', 'password-updated');
+    }
+}
+","",1,"RedirectResponse"
+"Method:app/Http/Controllers/Auth/NewPasswordController.php:create","create","app/Http/Controllers/Auth/NewPasswordController.php",19,22,true,"     * Display the password reset view.
+     */
+    public function create(Request $request): View
+    {
+        return view('auth.reset-password', ['request' => $request]);
+    }
+
+    /**","",1,"View"
+"Method:app/Http/Controllers/Auth/NewPasswordController.php:store","store","app/Http/Controllers/Auth/NewPasswordController.php",29,59,true,"     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'token' => ['required'],
+            'email' => ['required', 'email'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        // Here we will attempt to reset the user's password. If it is successful we
+        // will update the password on an actual user model and persist it to the
+        // database. Otherwise we will parse the error and return the response.
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user) use ($request) {
+                $user->forceFill([
+                    'password' => Hash::make($request->password),
+                    'remember_token' => Str::random(60),
+                ])->save();
+
+                event(new PasswordReset($user));
+            }
+        );
+
+        // If the password was successfully reset, we will redirect the user back to
+        // the application's home authenticated view. If there is an error we can
+        // redirect them back to where they came from with their error message.
+        return $status == Password::PASSWORD_RESET
+                    ? redirect()->route('login')->with('status', __($status))
+                    : back()->withInput($request->only('email'))
+                            ->withErrors(['email' => __($status)]);
+    }
+}
+","",1,"RedirectResponse"
+"Method:app/Http/Controllers/Auth/EmailVerificationPromptController.php:__invoke","__invoke","app/Http/Controllers/Auth/EmailVerificationPromptController.php",15,20,true,"     * Display the email verification prompt.
+     */
+    public function __invoke(Request $request): RedirectResponse|View
+    {
+        return $request->user()->hasVerifiedEmail()
+                    ? redirect()->intended(RouteServiceProvider::HOME)
+                    : view('auth.verify-email');
+    }
+}
+","",1,"RedirectResponse|View"
+"Method:app/Http/Controllers/Auth/EmailVerificationNotificationController.php:store","store","app/Http/Controllers/Auth/EmailVerificationNotificationController.php",14,23,true,"     * Send a new email verification notification.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        if ($request->user()->hasVerifiedEmail()) {
+            return redirect()->intended(RouteServiceProvider::HOME);
+        }
+
+        $request->user()->sendEmailVerificationNotification();
+
+        return back()->with('status', 'verification-link-sent');
+    }
+}
+","",1,"RedirectResponse"
+"Method:app/Http/Controllers/Auth/ConfirmablePasswordController.php:show","show","app/Http/Controllers/Auth/ConfirmablePasswordController.php",17,20,true,"     * Show the confirm password view.
+     */
+    public function show(): View
+    {
+        return view('auth.confirm-password');
+    }
+
+    /**","",0,"View"
+"Method:app/Http/Controllers/Auth/ConfirmablePasswordController.php:store","store","app/Http/Controllers/Auth/ConfirmablePasswordController.php",25,39,true,"     * Confirm the user's password.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        if (! Auth::guard('web')->validate([
+            'email' => $request->user()->email,
+            'password' => $request->password,
+        ])) {
+            throw ValidationException::withMessages([
+                'password' => __('auth.password'),
+            ]);
+        }
+
+        $request->session()->put('auth.password_confirmed_at', time());
+
+        return redirect()->intended(RouteServiceProvider::HOME);
+    }
+}
+","",1,"RedirectResponse"
+"Method:app/Http/Controllers/Auth/AuthenticatedSessionController.php:create","create","app/Http/Controllers/Auth/AuthenticatedSessionController.php",17,20,true,"     * Display the login view.
+     */
+    public function create(): View
+    {
+        return view('auth.login');
+    }
+
+    /**","",0,"View"
+"Method:app/Http/Controllers/Auth/AuthenticatedSessionController.php:store","store","app/Http/Controllers/Auth/AuthenticatedSessionController.php",25,32,true,"     * Handle an incoming authentication request.
+     */
+    public function store(LoginRequest $request): RedirectResponse
+    {
+        $request->authenticate();
+
+        $request->session()->regenerate();
+
+        return redirect()->intended(RouteServiceProvider::HOME);
+    }
+
+    /**","",1,"RedirectResponse"
+"Method:app/Http/Controllers/Auth/AuthenticatedSessionController.php:destroy","destroy","app/Http/Controllers/Auth/AuthenticatedSessionController.php",37,46,true,"     * Destroy an authenticated session.
+     */
+    public function destroy(Request $request): RedirectResponse
+    {
+        Auth::guard('web')->logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        return redirect('/');
+    }
+}
+","",1,"RedirectResponse"

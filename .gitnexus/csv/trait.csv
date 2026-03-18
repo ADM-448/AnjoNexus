@@ -1,0 +1,20 @@
+id,name,filePath,startLine,endLine,content,description
+"Trait:tests/CreatesApplication.php:CreatesApplication","CreatesApplication","tests/CreatesApplication.php",6,21,"use Illuminate\Contracts\Console\Kernel;
+
+trait CreatesApplication
+{
+    /**
+     * Creates the application.
+     *
+     * @return \Illuminate\Foundation\Application
+     */
+    public function createApplication()
+    {
+        $app = require __DIR__.'/../bootstrap/app.php';
+
+        $app->make(Kernel::class)->bootstrap();
+
+        return $app;
+    }
+}
+",""

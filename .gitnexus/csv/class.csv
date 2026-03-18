@@ -1,0 +1,2380 @@
+id,name,filePath,startLine,endLine,isExported,content,description
+"Class:tests/TestCase.php:TestCase","TestCase","tests/TestCase.php",6,9,true,"use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+
+abstract class TestCase extends BaseTestCase
+{
+    use CreatesApplication;
+}
+",""
+"Class:tests/Unit/ExampleTest.php:ExampleTest","ExampleTest","tests/Unit/ExampleTest.php",6,17,true,"use PHPUnit\Framework\TestCase;
+
+class ExampleTest extends TestCase
+{
+    /**
+     * A basic test example.
+     *
+     * @return void
+     */
+    public function test_that_true_is_true()
+    {
+        $this->assertTrue(true);
+    }
+}
+",""
+"Class:tests/Feature/ProfileTest.php:ProfileTest","ProfileTest","tests/Feature/ProfileTest.php",8,98,true,"use Tests\TestCase;
+
+class ProfileTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_profile_page_is_displayed(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->get('/profile');
+
+        $response->assertOk();
+    }
+
+    public function test_profile_information_can_be_updated(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->patch('/profile', [
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/profile');
+
+        $user->refresh();
+
+        $this->assertSame('Test User', $user->name);
+        $this->assertSame('test@example.com', $user->email);
+        $this->assertNull($user->email_verified_at);
+    }
+
+    public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->patch('/profile', [
+                'name' => 'Test User',
+                'email' => $user->email,
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/profile');
+
+        $this->assertNotNull($user->refresh()->email_verified_at);
+    }
+
+    public function test_user_can_delete_their_account(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->delete('/profile', [
+                'password' => 'password',
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/');
+
+        $this->assertGuest();
+        $this->assertNull($user->fresh());
+    }
+
+    public function test_correct_password_must_be_provided_to_delete_account(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->from('/profile')
+            ->delete('/profile', [
+                'password' => 'wrong-password',
+            ]);
+
+        $response
+            ->assertSessionHasErrorsIn('userDeletion', 'password')
+            ->assertRedirect('/profile');
+
+        $this->assertNotNull($user->fresh());
+    }
+}
+",""
+"Class:tests/Feature/ExampleTest.php:ExampleTest","ExampleTest","tests/Feature/ExampleTest.php",7,20,true,"use Tests\TestCase;
+
+class ExampleTest extends TestCase
+{
+    /**
+     * A basic test example.
+     *
+     * @return void
+     */
+    public function test_the_application_returns_a_successful_response()
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+    }
+}
+",""
+"Class:database/seeders/EditalSeeder.php:EditalSeeder","EditalSeeder","database/seeders/EditalSeeder.php",7,57,true,"use App\Models\Edital;
+
+class EditalSeeder extends Seeder
+{
+    public function run()
+    {
+        $edital = Edital::create([
+            'titulo' => 'Finep Mais Inovação Brasil – Rodada 2 – Transformação Mineral',
+            'codigo_externo' => '771',
+            'orgao' => 'Finep',
+            'email_contato' => 'cp_transformacao_mineral@finep.gov.br',
+            'modalidade' => 'Subvenção Econômica',
+            'orcamento_global' => 200000000.00,
+            'publico_alvo' => 'Empresas (obrigatória parceria com ICTs)',
+            'temas' => 'Minerais críticos e estratégicos, Descarbonização, Transição Energética',
+            'trl_min' => '3',
+            'trl_max' => '9',
+            'status' => 'Aberto',
+            'url_oficial' => 'http://www.finep.gov.br/chamadas-publicas/771'
+        ]);
+
+        // Criar Seções e Perguntas Mocks do Finep
+        $secao1 = $edital->secoes()->create([
+            'titulo' => '1. Descrição do Projeto',
+            'ordem' => 1
+        ]);
+        
+        $secao1->perguntas()->create([
+            'texto' => 'Qual o problema que o projeto resolve? (Aponte também o diferencial inovador).',
+            'tipo' => 'textarea',
+            'max_palavras' => 500,
+            'ordem' => 1
+        ]);
+        $secao1->perguntas()->create([
+            'texto' => 'Descreva a solução proposta.',
+            'tipo' => 'textarea',
+            'max_palavras' => 800,
+            'ordem' => 2
+        ]);
+        
+        $secao2 = $edital->secoes()->create([
+            'titulo' => '2. Viabilidade e TRL',
+            'ordem' => 2
+        ]);
+        
+        $secao2->perguntas()->create([
+            'texto' => 'Qual o Nível de Maturidade Tecnológica (TRL) atual do projeto e qual TRL se espera atingir ao final?',
+            'tipo' => 'textarea',
+            'max_palavras' => 300,
+            'ordem' => 1
+        ]);
+    }
+}
+",""
+"Class:database/seeders/DatabaseSeeder.php:DatabaseSeeder","DatabaseSeeder","database/seeders/DatabaseSeeder.php",7,40,true,"use Illuminate\Database\Seeder;
+
+class DatabaseSeeder extends Seeder
+{
+    /**
+     * Seed the application's database.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        // Criar um usuário default
+        $user = \App\Models\User::factory()->create([
+            'name' => 'Usuário Teste',
+            'email' => 'teste@anjoinovador.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        // Vincular uma empresa
+        \App\Models\Empresa::create([
+            'user_id' => $user->id,
+            'razao_social' => 'Tech Mining Inovação LTDA',
+            'cnpj' => '12.345.678/0001-90',
+            'porte' => 'Média',
+            'setor' => 'Mineração / Tecnologia',
+            'estado' => 'SP',
+            'n_funcionarios' => 45,
+            'faturamento_anual' => '2.5 milhões',
+            'historico_inovacao' => 'Desenvolvimento de sensores IoT para maquinário pesado.'
+        ]);
+
+        $this->call([
+            EditalSeeder::class,
+        ]);
+    }
+}
+",""
+"Class:database/migrations/0000_00_00_000000_create_websockets_statistics_entries_table.php:CreateWebSocketsStatisticsEntriesTable","CreateWebSocketsStatisticsEntriesTable","database/migrations/0000_00_00_000000_create_websockets_statistics_entries_table.php",6,34,true,"use Illuminate\Support\Facades\Schema;
+
+class CreateWebSocketsStatisticsEntriesTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('websockets_statistics_entries', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('app_id');
+            $table->integer('peak_connection_count');
+            $table->integer('websocket_message_count');
+            $table->integer('api_message_count');
+            $table->nullableTimestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('websockets_statistics_entries');
+    }
+}
+",""
+"Class:database/factories/UserFactory.php:UserFactory","UserFactory","database/factories/UserFactory.php",10,39,true," * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ */
+class UserFactory extends Factory
+{
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition()
+    {
+        return [
+            'name' => fake()->name(),
+            'email' => fake()->unique()->safeEmail(),
+            'email_verified_at' => now(),
+            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'remember_token' => Str::random(10),
+        ];
+    }
+
+    /**
+     * Indicate that the model's email address should be unverified.
+     *
+     * @return static
+     */
+    public function unverified()
+    {
+        return $this->state(fn (array $attributes) => [
+            'email_verified_at' => null,
+        ]);
+    }
+}
+",""
+"Class:app/Services/GeminiService.php:GeminiService","GeminiService","app/Services/GeminiService.php",8,52,true,"use Exception;
+
+class GeminiService
+{
+    private string $key;
+    private string $defaultModel;
+
+    public function __construct()
+    {
+        $this->key = env('GOOGLE_GEMINI_KEY') ?? env('OPEN_AI_KEY'); 
+        // Atualizado para o padrão mais seguro do Google
+        $this->defaultModel = ""gemini-flash-latest""; 
+    }
+
+    // Agora o método aceita um segundo parâmetro opcional
+    public function generateContent(string $prompt, ?string $modelOverride = null)
+    {
+        $modelToUse = $modelOverride ?? $this->defaultModel;
+
+        try {
+            $response = Http::timeout(60)->post(
+                ""https://generativelanguage.googleapis.com/v1beta/models/{$modelToUse}:generateContent?key={$this->key}"",
+                ['contents' => [['parts' => [['text' => $prompt]]]]]
+            );
+
+            if ($response->failed()) {
+                $errorBody = $response->body();
+                Log::error(""Gemini API Error [{$modelToUse}]: "" . $errorBody);
+                $errorMessage = $response->json()['error']['message'] ?? 'Erro desconhecido na API do Gemini';
+                throw new Exception(""Erro na IA: "" . $errorMessage);
+            }
+
+            $text = $response->json()['candidates'][0]['content']['parts'][0]['text'] ?? null;
+            
+            if (!$text) {
+                Log::error(""Gemini API Empty Response [{$modelToUse}]: "" . $response->body());
+                throw new Exception(""A IA não retornou conteúdo. Tente novamente em instantes."");
+            }
+
+            return $text;
+
+        } catch (Exception $e) {
+            Log::error(""Gemini Exception: "" . $e->getMessage());
+            throw $e;
+        }
+    }
+}",""
+"Class:app/Scrapers/GoogleNewsRssScraper.php:GoogleNewsRssScraper","GoogleNewsRssScraper","app/Scrapers/GoogleNewsRssScraper.php",7,80,true,"use Illuminate\Support\Facades\Log;
+
+class GoogleNewsRssScraper implements ScraperInterface
+{
+    /**
+     * Busca as notícias do Google News sobre editais do Anjo Inovador.
+     * É um ótimo ponto de partida porque retorna um feed XML puro e determinístico.
+     */
+    public function scrape(): array
+    {
+        // Ampliei o termo para ""edital inovação"" para garantir que a gente sempre ache
+        // notícias e você veja a mágica do scraper rodando na prática!
+        $termos = urlencode('edital inovação');
+        $url = ""https://news.google.com/rss/search?q={$termos}&hl=pt-BR&gl=BR"";
+
+        $resultados = [];
+
+        try {
+            // Em vez de simplexml_load_file q as vezes o google bloqueia por faltar User-Agent,
+            // usamos o Facade Http nativo do Laravel passando que somos um navegador!
+            $response = \Illuminate\Support\Facades\Http::withHeaders([
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            ])->get($url);
+
+            if (!$response->successful()) {
+                Log::error(""GoogleNewsRssScraper: Falha na requisição / Status: "" . $response->status());
+                return [];
+            }
+
+            // O PHP parseia o texto XML para um Object com base na string que o Http pegou
+            $xml = simplexml_load_string($response->body());
+
+            // O XML de RSS tem `<channel>` e dentro de channel vários `<item>`
+            // Cada item é uma notícia.
+            if (isset($xml->channel->item)) {
+                foreach ($xml->channel->item as $noticia) {
+                    
+                    // Converte os dados do XML para string (tipo seguro do PHP)
+                    $tituloString = (string) $noticia->title;
+                    $linkString = (string) $noticia->link;
+                    // Hash o link pq ele é único e a url original vem camuflada no google news
+                    $codigoExterno = md5($linkString);
+                    // extrai publisher do title, google news bota publisher no final ""- Publisher""
+                    $publisher = explode(' - ', $tituloString);
+                    $orgao = trim(end($publisher));
+                    
+                    if (empty($orgao)) {
+                        $orgao = 'Google News / Governo';
+                    }
+
+                    $resultados[] = [
+                        'titulo' => $tituloString,
+                        'codigo_externo' => 'googlenews_' . $codigoExterno,
+                        'orgao' => $orgao,
+                        'email_contato' => null, // GNews não provê isso
+                        'modalidade' => 'Oportunidade Listada (RSS)',
+                        'orcamento_global' => null,
+                        'publico_alvo' => null,
+                        'temas' => 'Notícia sobre edital de inovação',
+                        'trl_min' => null,
+                        'trl_max' => null,
+                        // Data de publicação do RSS ""pubDate"" convertida p BD
+                        'data_abertura' => date('Y-m-d', strtotime((string)$noticia->pubDate)),
+                        'data_encerramento' => null, // não se sabe só lendo noticia
+                        'status' => 'Em breve', // Oportunidade via news sempre entra pendente
+                        'url_oficial' => $linkString,
+                    ];
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error(""GoogleNewsRssScraper: Ocorreu um erro no parsing do XML: "" . $e->getMessage());
+        }
+
+        return $resultados;
+    }
+}
+",""
+"Class:app/Scrapers/FinepScraper.php:FinepScraper","FinepScraper","app/Scrapers/FinepScraper.php",8,76,true,"use Illuminate\Support\Facades\Log;
+
+class FinepScraper implements ScraperInterface
+{
+    /**
+     * Varrer o site oficial de editais da Finep.
+     */
+    public function scrape(): array
+    {
+        $url = 'http://www.finep.gov.br/chamadas-publicas?situacao=aberta';
+        $client = new Client();
+        
+        $resultados = [];
+
+        try {
+            // ""Pede"" o HTML da URL para o Goutte (ele simula um Browser!)
+            $crawler = $client->request('GET', $url);
+
+            // No Finep, eles usam a classe '.item' para cada edital no HTML.
+            // Para encontrar o título: .item h3 a (o link com titulo)
+            $crawler->filter('.item')->each(function ($node) use (&$resultados) {
+                
+                $tituloNode = $node->filter('h3 a');
+                if ($tituloNode->count() === 0) return;
+
+                $tituloString = trim($tituloNode->text());
+                $linkHref = $tituloNode->attr('href');
+                
+                if (strpos($linkHref, 'http') === false) {
+                    $linkHref = 'http://www.finep.gov.br' . $linkHref;
+                }
+
+                $partes = explode('/', $linkHref);
+                $codigoExterno = end($partes);
+                if (empty($codigoExterno)) {
+                     $codigoExterno = md5($linkHref);
+                }
+
+                // Extraindo o Tema real do HTML
+                $temasNode = $node->filter('.tema span');
+                $temasText = $temasNode->count() > 0 ? trim($temasNode->text()) : 'Inovação Geral';
+
+                // Extraindo Data de Publicação
+                $dataNode = $node->filter('.data_pub span');
+                $dataPub = $dataNode->count() > 0 ? \Carbon\Carbon::createFromFormat('d/m/Y', trim($dataNode->text()))->format('Y-m-d') : date('Y-m-d');
+
+                $resultados[] = [
+                    'titulo' => $tituloString,
+                    'codigo_externo' => 'finep_' . $codigoExterno,
+                    'orgao' => 'Finep',
+                    'email_contato' => null, 
+                    'modalidade' => 'Subvenção / Financiamento',
+                    'orcamento_global' => null, 
+                    'publico_alvo' => 'Empresas e ICTs',
+                    'temas' => $temasText,
+                    'trl_min' => null,
+                    'trl_max' => null,
+                    'data_abertura' => $dataPub, 
+                    'data_encerramento' => null,
+                    'status' => 'Aberto',
+                    'url_oficial' => $linkHref,
+                ];
+            });
+
+        } catch (\Exception $e) {
+            Log::error(""FinepScraper: Falha ao varrer Finep HTML: "" . $e->getMessage());
+        }
+
+        return $resultados;
+    }
+}
+",""
+"Class:app/Providers/RouteServiceProvider.php:RouteServiceProvider","RouteServiceProvider","app/Providers/RouteServiceProvider.php",10,51,true,"use Illuminate\Support\Facades\Route;
+
+class RouteServiceProvider extends ServiceProvider
+{
+    /**
+     * The path to the ""home"" route for your application.
+     *
+     * Typically, users are redirected here after authentication.
+     *
+     * @var string
+     */
+    public const HOME = '/dashboard';
+
+    /**
+     * Define your route model bindings, pattern filters, and other route configuration.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $this->configureRateLimiting();
+
+        $this->routes(function () {
+            Route::middleware('api')
+                ->prefix('api')
+                ->group(base_path('routes/api.php'));
+
+            Route::middleware('web')
+                ->group(base_path('routes/web.php'));
+        });
+    }
+
+    /**
+     * Configure the rate limiters for the application.
+     *
+     * @return void
+     */
+    protected function configureRateLimiting()
+    {
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+    }
+}
+",""
+"Class:app/Providers/EventServiceProvider.php:EventServiceProvider","EventServiceProvider","app/Providers/EventServiceProvider.php",9,41,true,"use Illuminate\Support\Facades\Event;
+
+class EventServiceProvider extends ServiceProvider
+{
+    /**
+     * The event to listener mappings for the application.
+     *
+     * @var array<class-string, array<int, class-string>>
+     */
+    protected $listen = [
+        Registered::class => [
+            SendEmailVerificationNotification::class,
+        ],
+    ];
+
+    /**
+     * Register any events for your application.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        //
+    }
+
+    /**
+     * Determine if events and listeners should be automatically discovered.
+     *
+     * @return bool
+     */
+    public function shouldDiscoverEvents()
+    {
+        return false;
+    }
+}
+",""
+"Class:app/Providers/BroadcastServiceProvider.php:BroadcastServiceProvider","BroadcastServiceProvider","app/Providers/BroadcastServiceProvider.php",7,20,true,"use Illuminate\Support\ServiceProvider;
+
+class BroadcastServiceProvider extends ServiceProvider
+{
+    /**
+     * Bootstrap any application services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        Broadcast::routes();
+
+        require base_path('routes/channels.php');
+    }
+}
+",""
+"Class:app/Providers/AuthServiceProvider.php:AuthServiceProvider","AuthServiceProvider","app/Providers/AuthServiceProvider.php",7,29,true,"use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+
+class AuthServiceProvider extends ServiceProvider
+{
+    /**
+     * The model to policy mappings for the application.
+     *
+     * @var array<class-string, class-string>
+     */
+    protected $policies = [
+        // 'App\Models\Model' => 'App\Policies\ModelPolicy',
+    ];
+
+    /**
+     * Register any authentication / authorization services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $this->registerPolicies();
+
+        //
+    }
+}
+",""
+"Class:app/Providers/AppServiceProvider.php:AppServiceProvider","AppServiceProvider","app/Providers/AppServiceProvider.php",6,27,true,"use Illuminate\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Register any application services.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        //
+    }
+
+    /**
+     * Bootstrap any application services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        //
+    }
+}
+",""
+"Class:app/Models/User.php:User","User","app/Models/User.php",10,48,true,"use Laravel\Sanctum\HasApiTokens;
+
+class User extends Authenticatable
+{
+    use HasApiTokens, HasFactory, Notifiable;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
+    public function empresa()
+    {
+        return $this->hasOne(Empresa::class);
+    }
+}
+",""
+"Class:app/Models/ProjetoResposta.php:ProjetoResposta","ProjetoResposta","app/Models/ProjetoResposta.php",7,23,true,"use Illuminate\Database\Eloquent\Model;
+
+class ProjetoResposta extends Model
+{
+    use HasFactory;
+    
+    protected $table = 'projeto_respostas';
+    protected $guarded = ['id'];
+
+    public function projeto()
+    {
+        return $this->belongsTo(Projeto::class);
+    }
+
+    public function pergunta()
+    {
+        return $this->belongsTo(EditalPergunta::class, 'pergunta_id');
+    }
+}
+",""
+"Class:app/Models/Projeto.php:Projeto","Projeto","app/Models/Projeto.php",7,32,true,"use Illuminate\Database\Eloquent\Model;
+
+class Projeto extends Model
+{
+    use HasFactory;
+    
+    protected $guarded = ['id'];
+
+    public function empresa()
+    {
+        return $this->belongsTo(Empresa::class);
+    }
+
+    public function edital()
+    {
+        return $this->belongsTo(Edital::class);
+    }
+
+    public function respostas()
+    {
+        return $this->hasMany(ProjetoResposta::class);
+    }
+
+    public function documentosGerados()
+    {
+        return $this->hasMany(DocumentoGerado::class);
+    }
+}
+",""
+"Class:app/Models/Empresa.php:Empresa","Empresa","app/Models/Empresa.php",7,22,true,"use Illuminate\Database\Eloquent\Model;
+
+class Empresa extends Model
+{
+    use HasFactory;
+
+    protected $guarded = ['id'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function projetos()
+    {
+        return $this->hasMany(Projeto::class);
+    }
+}
+",""
+"Class:app/Models/EditalSecao.php:EditalSecao","EditalSecao","app/Models/EditalSecao.php",7,23,true,"use Illuminate\Database\Eloquent\Model;
+
+class EditalSecao extends Model
+{
+    use HasFactory;
+    
+    protected $table = 'edital_secoes';
+    protected $guarded = ['id'];
+
+    public function edital()
+    {
+        return $this->belongsTo(Edital::class);
+    }
+
+    public function perguntas()
+    {
+        return $this->hasMany(EditalPergunta::class, 'secao_id');
+    }
+}
+",""
+"Class:app/Models/EditalPergunta.php:EditalPergunta","EditalPergunta","app/Models/EditalPergunta.php",7,18,true,"use Illuminate\Database\Eloquent\Model;
+
+class EditalPergunta extends Model
+{
+    use HasFactory;
+    
+    protected $table = 'edital_perguntas';
+    protected $guarded = ['id'];
+
+    public function secao()
+    {
+        return $this->belongsTo(EditalSecao::class, 'secao_id');
+    }
+}
+",""
+"Class:app/Models/Edital.php:Edital","Edital","app/Models/Edital.php",7,29,true,"use Illuminate\Database\Eloquent\Model;
+
+class Edital extends Model
+{
+    use HasFactory;
+    
+    protected $table = 'editais';
+    protected $guarded = ['id'];
+
+    protected $casts = [
+        'payload_origem' => 'array',
+        'last_scanned_at' => 'datetime',
+        'ia_enriquecido' => 'boolean',
+    ];
+
+    public function secoes()
+    {
+        return $this->hasMany(EditalSecao::class);
+    }
+
+    public function projetos()
+    {
+        return $this->hasMany(Projeto::class);
+    }
+}
+",""
+"Class:app/Models/DocumentoGerado.php:DocumentoGerado","DocumentoGerado","app/Models/DocumentoGerado.php",7,23,true,"use Illuminate\Database\Eloquent\Model;
+
+class DocumentoGerado extends Model
+{
+    use HasFactory;
+    
+    protected $table = 'documentos_gerados';
+    protected $guarded = ['id'];
+
+    public function projeto()
+    {
+        return $this->belongsTo(Projeto::class);
+    }
+
+    public function secao()
+    {
+        return $this->belongsTo(EditalSecao::class, 'secao_id');
+    }
+}
+",""
+"Class:app/Jobs/RunAllScrapersJob.php:RunAllScrapersJob","RunAllScrapersJob","app/Jobs/RunAllScrapersJob.php",11,66,true,"use Illuminate\Queue\SerializesModels;
+
+class RunAllScrapersJob implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    /**
+     * Create a new job instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        //
+    }
+
+    /**
+     * Execute the job.
+     */
+    public function handle(): void
+    {
+        $rssScraper = new \App\Scrapers\GoogleNewsRssScraper();
+        $finepScraper = new \App\Scrapers\FinepScraper();
+
+        $scrapers = [$rssScraper, $finepScraper];
+        
+        $totalNovos = 0;
+        $totalAtualizados = 0;
+
+        foreach ($scrapers as $scraper) {
+            $editais = $scraper->scrape();
+                        
+            foreach ($editais as $editalData) {
+                try {
+                    // Adiciona o payload bruto aos dados
+                    $editalData['payload_origem'] = $editalData;
+                    $editalData['last_scanned_at'] = now();
+
+                    // Usa firstOrCreate para NUNCA sobrescrever dados bons com lixo de scraper
+                    $edital = \App\Models\Edital::firstOrCreate(
+                        ['codigo_externo' => $editalData['codigo_externo']], 
+                        $editalData 
+                    );
+
+                    // Se não foi recém criado, atualizamos pelo menos a data de sincronização
+                    if (!$edital->wasRecentlyCreated) {
+                        $edital->update(['last_scanned_at' => now()]);
+                    }
+                    
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error(""Erro ao inserir: "" . $e->getMessage());
+                }
+            }
+        }
+        
+        \Illuminate\Support\Facades\Log::info(""RunAllScrapersJob executado. {$totalNovos} novos, {$totalAtualizados} atualizados."");
+    }
+}
+",""
+"Class:app/Http/Kernel.php:Kernel","Kernel","app/Http/Kernel.php",6,66,true,"use Illuminate\Foundation\Http\Kernel as HttpKernel;
+
+class Kernel extends HttpKernel
+{
+    /**
+     * The application's global HTTP middleware stack.
+     *
+     * These middleware are run during every request to your application.
+     *
+     * @var array<int, class-string|string>
+     */
+    protected $middleware = [
+        // \App\Http\Middleware\TrustHosts::class,
+        \App\Http\Middleware\TrustProxies::class,
+        \Illuminate\Http\Middleware\HandleCors::class,
+        \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
+        \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
+        \App\Http\Middleware\TrimStrings::class,
+        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+    ];
+
+    /**
+     * The application's route middleware groups.
+     *
+     * @var array<string, array<int, class-string|string>>
+     */
+    protected $middlewareGroups = [
+        'web' => [
+            \App\Http\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            \App\Http\Middleware\VerifyCsrfToken::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ],
+
+        'api' => [
+            // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            'throttle:api',
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ],
+    ];
+
+    /**
+     * The application's route middleware.
+     *
+     * These middleware may be assigned to groups or used individually.
+     *
+     * @var array<string, class-string|string>
+     */
+    protected $routeMiddleware = [
+        'auth' => \App\Http\Middleware\Authenticate::class,
+        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class,
+        'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
+        'can' => \Illuminate\Auth\Middleware\Authorize::class,
+        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
+        'signed' => \App\Http\Middleware\ValidateSignature::class,
+        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+    ];
+}
+",""
+"Class:app/Exceptions/Handler.php:Handler","Handler","app/Exceptions/Handler.php",7,49,true,"use Throwable;
+
+class Handler extends ExceptionHandler
+{
+    /**
+     * A list of exception types with their corresponding custom log levels.
+     *
+     * @var array<class-string<\Throwable>, \Psr\Log\LogLevel::*>
+     */
+    protected $levels = [
+        //
+    ];
+
+    /**
+     * A list of the exception types that are not reported.
+     *
+     * @var array<int, class-string<\Throwable>>
+     */
+    protected $dontReport = [
+        //
+    ];
+
+    /**
+     * A list of the inputs that are never flashed to the session on validation exceptions.
+     *
+     * @var array<int, string>
+     */
+    protected $dontFlash = [
+        'current_password',
+        'password',
+        'password_confirmation',
+    ];
+
+    /**
+     * Register the exception handling callbacks for the application.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        $this->reportable(function (Throwable $e) {
+            //
+        });
+    }
+}
+",""
+"Class:app/Events/NovoEditalDetectado.php:NovoEditalDetectado","NovoEditalDetectado","app/Events/NovoEditalDetectado.php",12,38,true,"use Illuminate\Queue\SerializesModels;
+
+class NovoEditalDetectado implements ShouldBroadcast
+{
+    use Dispatchable, InteractsWithSockets, SerializesModels;
+
+    public $edital;
+
+    /**
+     * Create a new event instance.
+     *
+     * @return void
+     */
+    public function __construct(\App\Models\Edital $edital)
+    {
+        $this->edital = $edital;
+    }
+
+    /**
+     * Get the channels the event should broadcast on.
+     * Canal aberto ""editais""
+     *
+     * @return \Illuminate\Broadcasting\Channel|array
+     */
+    public function broadcastOn()
+    {
+        return new \Illuminate\Broadcasting\Channel('editais');
+    }
+}
+",""
+"Class:app/Console/Kernel.php:Kernel","Kernel","app/Console/Kernel.php",7,32,true,"use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+
+class Kernel extends ConsoleKernel
+{
+    /**
+     * Define the application's command schedule.
+     *
+     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
+     * @return void
+     */
+    protected function schedule(Schedule $schedule)
+    {
+        // Roda o Job mestre (orquestrador de Scrapers) todo dia 1h da manhã no servidor
+        $schedule->job(new \App\Jobs\RunAllScrapersJob())->dailyAt('01:00');
+    }
+
+    /**
+     * Register the commands for the application.
+     *
+     * @return void
+     */
+    protected function commands()
+    {
+        $this->load(__DIR__.'/Commands');
+
+        require base_path('routes/console.php');
+    }
+}
+",""
+"Class:tests/Feature/Auth/RegistrationTest.php:RegistrationTest","RegistrationTest","tests/Feature/Auth/RegistrationTest.php",8,31,true,"use Tests\TestCase;
+
+class RegistrationTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_registration_screen_can_be_rendered(): void
+    {
+        $response = $this->get('/register');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_new_users_can_register(): void
+    {
+        $response = $this->post('/register', [
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(RouteServiceProvider::HOME);
+    }
+}
+",""
+"Class:tests/Feature/Auth/PasswordUpdateTest.php:PasswordUpdateTest","PasswordUpdateTest","tests/Feature/Auth/PasswordUpdateTest.php",9,50,true,"use Tests\TestCase;
+
+class PasswordUpdateTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_password_can_be_updated(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->from('/profile')
+            ->put('/password', [
+                'current_password' => 'password',
+                'password' => 'new-password',
+                'password_confirmation' => 'new-password',
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/profile');
+
+        $this->assertTrue(Hash::check('new-password', $user->refresh()->password));
+    }
+
+    public function test_correct_password_must_be_provided_to_update_password(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->from('/profile')
+            ->put('/password', [
+                'current_password' => 'wrong-password',
+                'password' => 'new-password',
+                'password_confirmation' => 'new-password',
+            ]);
+
+        $response
+            ->assertSessionHasErrorsIn('updatePassword', 'current_password')
+            ->assertRedirect('/profile');
+    }
+}
+",""
+"Class:tests/Feature/Auth/PasswordResetTest.php:PasswordResetTest","PasswordResetTest","tests/Feature/Auth/PasswordResetTest.php",10,70,true,"use Tests\TestCase;
+
+class PasswordResetTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_reset_password_link_screen_can_be_rendered(): void
+    {
+        $response = $this->get('/forgot-password');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_reset_password_link_can_be_requested(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email]);
+
+        Notification::assertSentTo($user, ResetPassword::class);
+    }
+
+    public function test_reset_password_screen_can_be_rendered(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email]);
+
+        Notification::assertSentTo($user, ResetPassword::class, function ($notification) {
+            $response = $this->get('/reset-password/'.$notification->token);
+
+            $response->assertStatus(200);
+
+            return true;
+        });
+    }
+
+    public function test_password_can_be_reset_with_valid_token(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create();
+
+        $this->post('/forgot-password', ['email' => $user->email]);
+
+        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
+            $response = $this->post('/reset-password', [
+                'token' => $notification->token,
+                'email' => $user->email,
+                'password' => 'password',
+                'password_confirmation' => 'password',
+            ]);
+
+            $response->assertSessionHasNoErrors();
+
+            return true;
+        });
+    }
+}
+",""
+"Class:tests/Feature/Auth/PasswordConfirmationTest.php:PasswordConfirmationTest","PasswordConfirmationTest","tests/Feature/Auth/PasswordConfirmationTest.php",8,43,true,"use Tests\TestCase;
+
+class PasswordConfirmationTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_confirm_password_screen_can_be_rendered(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get('/confirm-password');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_password_can_be_confirmed(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->post('/confirm-password', [
+            'password' => 'password',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHasNoErrors();
+    }
+
+    public function test_password_is_not_confirmed_with_invalid_password(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->post('/confirm-password', [
+            'password' => 'wrong-password',
+        ]);
+
+        $response->assertSessionHasErrors();
+    }
+}
+",""
+"Class:tests/Feature/Auth/EmailVerificationTest.php:EmailVerificationTest","EmailVerificationTest","tests/Feature/Auth/EmailVerificationTest.php",12,64,true,"use Tests\TestCase;
+
+class EmailVerificationTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_email_verification_screen_can_be_rendered(): void
+    {
+        $user = User::factory()->create([
+            'email_verified_at' => null,
+        ]);
+
+        $response = $this->actingAs($user)->get('/verify-email');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_email_can_be_verified(): void
+    {
+        $user = User::factory()->create([
+            'email_verified_at' => null,
+        ]);
+
+        Event::fake();
+
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            ['id' => $user->id, 'hash' => sha1($user->email)]
+        );
+
+        $response = $this->actingAs($user)->get($verificationUrl);
+
+        Event::assertDispatched(Verified::class);
+        $this->assertTrue($user->fresh()->hasVerifiedEmail());
+        $response->assertRedirect(RouteServiceProvider::HOME.'?verified=1');
+    }
+
+    public function test_email_is_not_verified_with_invalid_hash(): void
+    {
+        $user = User::factory()->create([
+            'email_verified_at' => null,
+        ]);
+
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            ['id' => $user->id, 'hash' => sha1('wrong-email')]
+        );
+
+        $this->actingAs($user)->get($verificationUrl);
+
+        $this->assertFalse($user->fresh()->hasVerifiedEmail());
+    }
+}
+",""
+"Class:tests/Feature/Auth/AuthenticationTest.php:AuthenticationTest","AuthenticationTest","tests/Feature/Auth/AuthenticationTest.php",9,44,true,"use Tests\TestCase;
+
+class AuthenticationTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_login_screen_can_be_rendered(): void
+    {
+        $response = $this->get('/login');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_users_can_authenticate_using_the_login_screen(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(RouteServiceProvider::HOME);
+    }
+
+    public function test_users_can_not_authenticate_with_invalid_password(): void
+    {
+        $user = User::factory()->create();
+
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'wrong-password',
+        ]);
+
+        $this->assertGuest();
+    }
+}
+",""
+"Class:app/View/Components/GuestLayout.php:GuestLayout","GuestLayout","app/View/Components/GuestLayout.php",7,16,true,"use Illuminate\View\View;
+
+class GuestLayout extends Component
+{
+    /**
+     * Get the view / contents that represents the component.
+     */
+    public function render(): View
+    {
+        return view('layouts.guest');
+    }
+}
+",""
+"Class:app/View/Components/AppLayout.php:AppLayout","AppLayout","app/View/Components/AppLayout.php",7,16,true,"use Illuminate\View\View;
+
+class AppLayout extends Component
+{
+    /**
+     * Get the view / contents that represents the component.
+     */
+    public function render(): View
+    {
+        return view('layouts.app');
+    }
+}
+",""
+"Class:app/Http/Requests/UpdateEditalRequest.php:UpdateEditalRequest","UpdateEditalRequest","app/Http/Requests/UpdateEditalRequest.php",6,31,true,"use Illuminate\Foundation\Http\FormRequest;
+
+class UpdateEditalRequest extends FormRequest
+{
+    public function authorize()
+    {
+        return true;
+    }
+
+    public function rules()
+    {
+        return [
+            'titulo' => 'sometimes|string|max:255',
+            'orgao' => 'nullable|string|max:255',
+            'email_contato' => 'nullable|email|max:255',
+            'modalidade' => 'nullable|string|max:255',
+            'orcamento_global' => 'nullable|numeric',
+            'publico_alvo' => 'nullable|string|max:255',
+            'temas' => 'nullable|string',
+            'trl_min' => 'nullable|string|max:10',
+            'trl_max' => 'nullable|string|max:10',
+            'data_abertura' => 'nullable|date',
+            'data_encerramento' => 'nullable|date',
+            'url_oficial' => 'nullable|url|max:255',
+            'status' => 'nullable|in:Aberto,Encerrado,Em breve',
+        ];
+    }
+}
+",""
+"Class:app/Http/Requests/StoreEditalRequest.php:StoreEditalRequest","StoreEditalRequest","app/Http/Requests/StoreEditalRequest.php",6,30,true,"use Illuminate\Foundation\Http\FormRequest;
+
+class StoreEditalRequest extends FormRequest
+{
+    public function authorize()
+    {
+        return true;
+    }
+
+    public function rules()
+    {
+        return [
+            'titulo' => 'required|string|max:255',
+            'orgao' => 'nullable|string|max:255',
+            'email_contato' => 'nullable|email|max:255',
+            'modalidade' => 'nullable|string|max:255',
+            'orcamento_global' => 'nullable|numeric',
+            'publico_alvo' => 'nullable|string|max:255',
+            'temas' => 'nullable|string',
+            'trl_min' => 'nullable|string|max:10',
+            'trl_max' => 'nullable|string|max:10',
+            'data_abertura' => 'nullable|date',
+            'data_encerramento' => 'nullable|date',
+            'url_oficial' => 'nullable|url|max:255',
+        ];
+    }
+}
+",""
+"Class:app/Http/Requests/ProfileUpdateRequest.php:ProfileUpdateRequest","ProfileUpdateRequest","app/Http/Requests/ProfileUpdateRequest.php",8,22,true,"use Illuminate\Validation\Rule;
+
+class ProfileUpdateRequest extends FormRequest
+{
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'name' => ['string', 'max:255'],
+            'email' => ['email', 'max:255', Rule::unique(User::class)->ignore($this->user()->id)],
+        ];
+    }
+}
+",""
+"Class:app/Http/Controllers/ProfileController.php:ProfileController","ProfileController","app/Http/Controllers/ProfileController.php",11,59,true,"use Illuminate\View\View;
+
+class ProfileController extends Controller
+{
+    /**
+     * Display the user's profile form.
+     */
+    public function edit(Request $request): View
+    {
+        return view('profile.edit', [
+            'user' => $request->user(),
+        ]);
+    }
+
+    /**
+     * Update the user's profile information.
+     */
+    public function update(ProfileUpdateRequest $request): RedirectResponse
+    {
+        $request->user()->fill($request->validated());
+
+        if ($request->user()->isDirty('email')) {
+            $request->user()->email_verified_at = null;
+        }
+
+        $request->user()->save();
+
+        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+
+    /**
+     * Delete the user's account.
+     */
+    public function destroy(Request $request): RedirectResponse
+    {
+        $request->validateWithBag('userDeletion', [
+            'password' => ['required', 'current-password'],
+        ]);
+
+        $user = $request->user();
+
+        Auth::logout();
+
+        $user->delete();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return Redirect::to('/');
+    }
+}
+",""
+"Class:app/Http/Controllers/OpenAIController.php:OpenAIController","OpenAIController","app/Http/Controllers/OpenAIController.php",10,210,true,"use App\Services\GeminiService;
+
+class OpenAIController extends Controller
+{
+    // Propriedade que guarda o serviço da IA para usar em qualquer método da classe.
+    protected $gemini;
+
+    // O Laravel injeta automaticamente o GeminiService aqui quando o controller é criado.
+    public function __construct(GeminiService $gemini)
+    {
+        $this->gemini = $gemini;
+    }
+
+    // -----------------------------------------------------------------------
+    // PÁGINA PRINCIPAL DO GERADOR DE PROPOSTAS
+    // Este método serve tanto para GET (abrir a página) quanto POST (gerar proposta).
+    // É uma escolha de design: mantém tudo em uma rota só ao invés de criar duas.
+    // -----------------------------------------------------------------------
+    public function index(Request $request)
+    {
+        // Lista fixa de modelos disponíveis para o usuário escolher.
+        // Está no código (hardcoded) para não precisar chamar a API do Google
+        // só para buscar os modelos disponíveis — economiza tempo e dinheiro.
+        $models = collect([
+            ['id' => 'gemini-flash-latest', 'value' => 'Google Gemini 1.5 Flash (Rápido)'],
+            ['id' => 'gemini-pro',          'value' => 'Google Gemini Pro (Complexo)']
+        ]);
+
+        // Só entra aqui se o usuário clicou em ""Gerar"" (método POST) E enviou um texto.
+        // Se for só um GET (abrindo a página), pula esse bloco inteiro.
+        if ($request->isMethod('post') && $request->search) {
+
+            // Pega o modelo escolhido pelo usuário. Se não escolheu nenhum, usa o Flash como padrão.
+            $modelId = $request->get('model', 'gemini-flash-latest');
+
+            // Busca a empresa do usuário logado para incluir os dados dela no prompt.
+            $empresa = \App\Models\Empresa::where('user_id', auth()->id())->first();
+
+            // Monta o prompt completo com contexto do edital + dados da empresa + texto do usuário.
+            $finalPrompt = $this->buildPrompt($request, $empresa);
+
+            // Gera uma chave única para o cache baseada no modelo + conteúdo do prompt.
+            // md5() transforma o prompt longo em uma string curta de 32 caracteres.
+            // Exemplo de chave: ""gemini_gemini-pro_a3f5c8d2e1...""
+            $key_search = ""gemini_{$modelId}_"" . md5($finalPrompt);
+
+            try {
+                // CACHE: Se esse exato prompt já foi processado nas últimas 12h,
+                // retorna o resultado salvo sem chamar a API. Economiza custo e tempo.
+                if (cache()->has($key_search)) {
+                    $info   = [""Info em cache (Gemini)""];
+                    $result = cache()->get($key_search);
+                } else {
+                    // Não está em cache: chama a API do Gemini de verdade.
+                    $result = $this->gemini->generateContent($finalPrompt, $modelId);
+
+                    // Se a IA não retornou nada, lança uma exceção para cair no catch abaixo.
+                    if (!$result) {
+                        throw new Exception(""A IA não retornou um resultado válido."");
+                    }
+
+                    $info = ['API' => ""Dados processados pela API do Google Gemini ""];
+
+                    // Salva o resultado no cache por 12 horas.
+                    // cache()->add() só salva se a chave ainda não existir (evita sobrescrever).
+                    cache()->add($key_search, $result, now()->addHours(12));
+                }
+
+                // Salva a proposta gerada no banco (cria Projeto + DocumentoGerado).
+                $projetoSalvo = $this->saveProposal($empresa, $request->get('edital_id'), $result, $request->search);
+
+                // Busca o objeto do edital se foi passado um edital_id na requisição.
+                // O operador ternário evita erro caso edital_id não exista.
+                $editalObj = $request->has('edital_id') ? \App\Models\Edital::find($request->edital_id) : null;
+
+                // Retorna a view com o resultado gerado pela IA e todos os dados relacionados.
+                return view('openai.index', [
+                    'models'            => $models,
+                    'result'            => $result,       // Texto da proposta gerada pela IA.
+                    'info'              => $info,         // Info se veio do cache ou da API.
+                    'selectedEditalName'=> $editalObj->titulo ?? """", // ?? """" evita erro se edital for null.
+                    'editalObj'         => $editalObj,
+                    'projetoSalvo'      => $projetoSalvo, // Projeto salvo no banco (para exibir link, etc).
+                ]);
+
+            } catch (Exception $e) {
+                // Se qualquer coisa deu errado (API fora do ar, etc):
+                // Loga o erro, volta para a página anterior mantendo o que o usuário tinha digitado,
+                // e exibe a mensagem de erro na tela.
+                Log::error(""Erro no OpenAIController: "" . $e->getMessage());
+                return redirect()->back()
+                    ->wit
+... [truncated]",""
+"Class:app/Http/Controllers/EmpresaController.php:EmpresaController","EmpresaController","app/Http/Controllers/EmpresaController.php",8,62,true,"use Illuminate\Support\Facades\Auth;
+
+class EmpresaController extends Controller
+{
+    public function edit()
+    {
+        $empresa = Empresa::firstOrCreate(
+            ['user_id' => Auth::id()],
+            ['razao_social' => '', 'cnpj' => '']
+        );
+
+        return view('empresa.edit', compact('empresa'));
+    }
+
+    public function update(Request $request)
+    {
+        $validated = $request->validate([
+            // Dados da Empresa
+            'razao_social'          => 'required|string|max:255',
+            'cnpj'                  => 'required|string|max:20',
+            'porte'                 => 'nullable|string|max:50',
+            'setor'                 => 'nullable|string|max:100',
+            'estado'                => 'nullable|string|max:2',
+            'n_funcionarios'        => 'nullable|integer|min:0',
+            'faturamento_anual'     => 'nullable|string|max:100',
+            // Representante Legal
+            'telefone'              => 'nullable|string|max:20',
+            'email_contato'         => 'nullable|email|max:255',
+            'representante_legal'   => 'nullable|string|max:255',
+            'cargo_representante'   => 'nullable|string|max:100',
+            // Tese de Captação
+            'problema_que_resolve'      => 'nullable|string|max:2000',
+            'quem_e_impactado'          => 'nullable|string|max:1000',
+            'solucao_proposta'          => 'nullable|string|max:2000',
+            'como_funciona_na_pratica'  => 'nullable|string|max:2000',
+            'estagio_solucao'           => 'nullable|string|max:50',
+            'diferenciais'              => 'nullable|string|max:2000',
+            'propriedade_intelectual'   => 'nullable|string|max:2000',
+            'historico_inovacao'        => 'nullable|string|max:2000',
+            'segmento_mercado'          => 'nullable|string|max:100',
+            'publico_alvo_empresa'      => 'nullable|string|max:255',
+            // Impactos
+            'impacto_economico'         => 'nullable|string|max:2000',
+            'impacto_social'            => 'nullable|string|max:2000',
+            'impacto_ambiental'         => 'nullable|string|max:2000',
+            'metricas_indicadores'      => 'nullable|string|max:2000',
+            // Financeiro
+            'tipo_recurso_interesse'        => 'nullable|string|max:100',
+            'como_recurso_sera_utilizado'   => 'nullable|string|max:2000',
+        ]);
+
+        $empresa = Empresa::where('user_id', Auth::id())->first();
+        $empresa->update($validated);
+
+        return redirect()->route('empresa.edit')->with('success', 'Dados da empresa atualizados com sucesso!');
+    }
+}
+",""
+"Class:app/Http/Controllers/EditalController.php:EditalController","EditalController","app/Http/Controllers/EditalController.php",11,326,true,"use Illuminate\Support\Facades\Log;
+
+class EditalController extends Controller
+{
+    // Propriedade que vai guardar o serviço da IA para usar em qualquer método da classe.
+    protected $gemini;
+
+    // O Laravel injeta automaticamente o GeminiService aqui quando o controller é criado.
+    // Você não precisa chamar ""new GeminiService()"" em lugar nenhum — o Laravel faz isso sozinho.
+    public function __construct(GeminiService $gemini)
+    {
+        $this->gemini = $gemini;
+    }
+
+    // -----------------------------------------------------------------------
+    // LISTAGEM DE EDITAIS (com filtros dinâmicos e paginação)
+    // -----------------------------------------------------------------------
+    public function index(Request $request)
+    {
+        // Inicia um query builder sem executar nada ainda.
+        // Permite adicionar filtros condicionalmente antes de ir ao banco.
+        $query = Edital::query();
+
+        // when() só adiciona o WHERE se o valor do filtro existir na requisição.
+        // Se o usuário não preencheu o campo ""busca"", essa linha é ignorada completamente.
+        // O LIKE ""%texto%"" encontra o valor em qualquer posição da coluna.
+        $query->when($request->busca, fn($q, $busca) => $q->where('titulo', 'like', ""%{$busca}%"")->orWhere('temas', 'like', ""%{$busca}%""));
+
+        // Mesmo esquema: só filtra por status/orgao/modalidade se o usuário escolheu um.
+        $query->when($request->status,    fn($q, $status) => $q->where('status', $status));
+        $query->when($request->orgao,     fn($q, $orgao)  => $q->where('orgao', $orgao));
+        $query->when($request->modalidade,fn($q, $mod)    => $q->where('modalidade', $mod));
+
+        // Executa a query com ordenação e paginação de 12 itens por página.
+        // withQueryString() mantém os filtros na URL ao trocar de página (?busca=x&status=y).
+        $editais = $query->orderBy('created_at', 'desc')->paginate(12)->withQueryString();
+
+        // Busca os valores únicos de órgão e modalidade para popular os <select> de filtro.
+        // distinct() evita repetições, whereNotNull() evita itens vazios, sort() ordena alfabeticamente.
+        $orgaos     = Edital::select('orgao')->distinct()->whereNotNull('orgao')->pluck('orgao')->sort();
+        $modalidades= Edital::select('modalidade')->distinct()->whereNotNull('modalidade')->pluck('modalidade')->sort();
+
+        // Se a requisição veio com header ""Accept: application/json"" (ex: app mobile, fetch JS),
+        // retorna JSON. Caso contrário, retorna a página HTML normalmente.
+        // Isso evita precisar criar uma rota separada só para API.
+        if ($request->wantsJson()) {
+            return response()->json($editais);
+        }
+
+        // Envia os dados para a view Blade usando compact(),
+        // que transforma as variáveis em um array ['editais' => $editais, ...].
+        return view('editais.index', compact('editais', 'orgaos', 'modalidades'));
+    }
+
+    // -----------------------------------------------------------------------
+    // ABRE O FORMULÁRIO DE CRIAÇÃO
+    // -----------------------------------------------------------------------
+    public function create()
+    {
+        // Apenas abre a view do formulário — sem dados para buscar.
+        return view('editais.create');
+    }
+
+    // -----------------------------------------------------------------------
+    // SALVA UM NOVO EDITAL NO BANCO
+    // -----------------------------------------------------------------------
+    public function store(StoreEditalRequest $request)
+    {
+        // StoreEditalRequest é uma classe separada que contém as regras de validação.
+        // validated() retorna APENAS os campos que passaram na validação,
+        // protegendo contra envio de campos não autorizados (mass assignment).
+        $edital = Edital::create($request->validated());
+
+        // Se for uma requisição de API, retorna o edital criado em JSON com status 201 (Created).
+        if ($request->wantsJson()) {
+            return response()->json($edital, 201);
+        }
+
+        // Redireciona para a listagem com uma mensagem de sucesso na sessão.
+        return redirect()->route('editais.index')->with('success', 'Edital cadastrado com sucesso.');
+    }
+
+    // -----------------------------------------------------------------------
+    // EXIBE UM EDITAL (com enriquecimento automático por IA)
+    // -----------------------------------------------------------------------
+    public function show(Edital $edital)
+    {
+        // O Laravel já buscou o edital pelo ID da URL automaticamente (Route Model Binding).
+        
+        // Se o edital ainda não passou pela IA (campo ia_enriquecido = false),
+        // chama o método privado que usa o Gemini para preencher os campos faltantes.
+        if (!$edital->ia_enriquecido) {
+            $this->enriquecerComIA($edital);
+        }
+
+        // Ao invés de mostrar uma página de detalhes, redireciona direto para
+        // o gerador de propostas com o edital já pré-se
+... [truncated]",""
+"Class:app/Http/Controllers/DashboardController.php:DashboardController","DashboardController","app/Http/Controllers/DashboardController.php",9,42,true,"use Illuminate\Support\Facades\Auth;
+
+class DashboardController extends Controller
+{
+    public function index()
+    {
+        $empresa = Empresa::where('user_id', Auth::id())->first();
+        
+        $projetos = collect();
+        $totalPropostas = 0;
+        $rascunhos = 0;
+
+        if ($empresa) {
+            $projetos = Projeto::where('empresa_id', $empresa->id)
+                ->with(['edital', 'documentosGerados'])//Eager loading — carrega os relacionamentos edital e documentosGerados em uma única query adicional, evitando o problema N+1
+                ->latest()//ordena Desc
+                ->take(10)//limita 10 por pag
+                ->get();//executar a query
+            
+            $totalPropostas = Projeto::where('empresa_id', $empresa->id)->count();
+            $rascunhos = Projeto::where('empresa_id', $empresa->id)->where('status', 'Em rascunho')->count();
+        }
+
+        $totalEditais = Edital::count();
+        $editaisAbertos = Edital::where('status', 'Aberto')->count();
+
+        return view('dashboard', compact(
+            'projetos',
+            'totalEditais',
+            'editaisAbertos', 
+            'totalPropostas',
+            'rascunhos',
+            'empresa'
+        ));
+    }
+}
+",""
+"Class:app/Http/Controllers/Controller.php:Controller","Controller","app/Http/Controllers/Controller.php",9,12,true,"use Illuminate\Routing\Controller as BaseController;
+
+class Controller extends BaseController
+{
+    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+}
+",""
+"Class:app/Http/Middleware/VerifyCsrfToken.php:VerifyCsrfToken","VerifyCsrfToken","app/Http/Middleware/VerifyCsrfToken.php",6,16,true,"use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
+
+class VerifyCsrfToken extends Middleware
+{
+    /**
+     * The URIs that should be excluded from CSRF verification.
+     *
+     * @var array<int, string>
+     */
+    protected $except = [
+        //
+    ];
+}
+",""
+"Class:app/Http/Middleware/ValidateSignature.php:ValidateSignature","ValidateSignature","app/Http/Middleware/ValidateSignature.php",6,21,true,"use Illuminate\Routing\Middleware\ValidateSignature as Middleware;
+
+class ValidateSignature extends Middleware
+{
+    /**
+     * The names of the query string parameters that should be ignored.
+     *
+     * @var array<int, string>
+     */
+    protected $except = [
+        // 'fbclid',
+        // 'utm_campaign',
+        // 'utm_content',
+        // 'utm_medium',
+        // 'utm_source',
+        // 'utm_term',
+    ];
+}
+",""
+"Class:app/Http/Middleware/TrustProxies.php:TrustProxies","TrustProxies","app/Http/Middleware/TrustProxies.php",7,27,true,"use Illuminate\Http\Request;
+
+class TrustProxies extends Middleware
+{
+    /**
+     * The trusted proxies for this application.
+     *
+     * @var array<int, string>|string|null
+     */
+    protected $proxies;
+
+    /**
+     * The headers that should be used to detect proxies.
+     *
+     * @var int
+     */
+    protected $headers =
+        Request::HEADER_X_FORWARDED_FOR |
+        Request::HEADER_X_FORWARDED_HOST |
+        Request::HEADER_X_FORWARDED_PORT |
+        Request::HEADER_X_FORWARDED_PROTO |
+        Request::HEADER_X_FORWARDED_AWS_ELB;
+}
+",""
+"Class:app/Http/Middleware/TrustHosts.php:TrustHosts","TrustHosts","app/Http/Middleware/TrustHosts.php",6,19,true,"use Illuminate\Http\Middleware\TrustHosts as Middleware;
+
+class TrustHosts extends Middleware
+{
+    /**
+     * Get the host patterns that should be trusted.
+     *
+     * @return array<int, string|null>
+     */
+    public function hosts()
+    {
+        return [
+            $this->allSubdomainsOfApplicationUrl(),
+        ];
+    }
+}
+",""
+"Class:app/Http/Middleware/TrimStrings.php:TrimStrings","TrimStrings","app/Http/Middleware/TrimStrings.php",6,18,true,"use Illuminate\Foundation\Http\Middleware\TrimStrings as Middleware;
+
+class TrimStrings extends Middleware
+{
+    /**
+     * The names of the attributes that should not be trimmed.
+     *
+     * @var array<int, string>
+     */
+    protected $except = [
+        'current_password',
+        'password',
+        'password_confirmation',
+    ];
+}
+",""
+"Class:app/Http/Middleware/RedirectIfAuthenticated.php:RedirectIfAuthenticated","RedirectIfAuthenticated","app/Http/Middleware/RedirectIfAuthenticated.php",9,31,true,"use Illuminate\Support\Facades\Auth;
+
+class RedirectIfAuthenticated
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
+     * @param  string|null  ...$guards
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     */
+    public function handle(Request $request, Closure $next, ...$guards)
+    {
+        $guards = empty($guards) ? [null] : $guards;
+
+        foreach ($guards as $guard) {
+            if (Auth::guard($guard)->check()) {
+                return redirect(RouteServiceProvider::HOME);
+            }
+        }
+
+        return $next($request);
+    }
+}
+",""
+"Class:app/Http/Middleware/PreventRequestsDuringMaintenance.php:PreventRequestsDuringMaintenance","PreventRequestsDuringMaintenance","app/Http/Middleware/PreventRequestsDuringMaintenance.php",6,16,true,"use Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance as Middleware;
+
+class PreventRequestsDuringMaintenance extends Middleware
+{
+    /**
+     * The URIs that should be reachable while maintenance mode is enabled.
+     *
+     * @var array<int, string>
+     */
+    protected $except = [
+        //
+    ];
+}
+",""
+"Class:app/Http/Middleware/EncryptCookies.php:EncryptCookies","EncryptCookies","app/Http/Middleware/EncryptCookies.php",6,16,true,"use Illuminate\Cookie\Middleware\EncryptCookies as Middleware;
+
+class EncryptCookies extends Middleware
+{
+    /**
+     * The names of the cookies that should not be encrypted.
+     *
+     * @var array<int, string>
+     */
+    protected $except = [
+        //
+    ];
+}
+",""
+"Class:app/Http/Middleware/Authenticate.php:Authenticate","Authenticate","app/Http/Middleware/Authenticate.php",6,20,true,"use Illuminate\Auth\Middleware\Authenticate as Middleware;
+
+class Authenticate extends Middleware
+{
+    /**
+     * Get the path the user should be redirected to when they are not authenticated.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return string|null
+     */
+    protected function redirectTo($request)
+    {
+        if (! $request->expectsJson()) {
+            return route('login');
+        }
+    }
+}
+",""
+"Class:app/Console/Commands/ScrapeEditaisCommand.php:ScrapeEditaisCommand","ScrapeEditaisCommand","app/Console/Commands/ScrapeEditaisCommand.php",6,109,true,"use Illuminate\Console\Command;
+
+class ScrapeEditaisCommand extends Command
+{
+    // Nome do comando que será digitado no terminal.
+    // Exemplo de uso: php artisan editais:scrape
+    protected $signature = 'editais:scrape';
+
+    // Descrição que aparece quando você roda ""php artisan list"" no terminal.
+    protected $description = 'Roda o web scraper inicial para buscar editais baseados em XML RSS';
+
+    // -----------------------------------------------------------------------
+    // MÉTODO PRINCIPAL — executa quando o comando é chamado no terminal.
+    // É o equivalente ao index() de um controller, mas para comandos.
+    // -----------------------------------------------------------------------
+    public function handle()
+    {
+        // $this->info() imprime uma mensagem em VERDE no terminal.
+        $this->info(""Iniciando varredura em todos os Scrapers configurados..."");
+
+        // Instancia os scrapers disponíveis.
+        // Cada scraper sabe buscar editais de uma fonte diferente.
+        $rssScraper   = new \App\Scrapers\GoogleNewsRssScraper(); // Busca via Google News RSS
+        $finepScraper = new \App\Scrapers\FinepScraper();         // Busca direto no site da FINEP
+
+        // Coloca os scrapers num array para poder rodar todos com um loop.
+        // Vantagem: para adicionar um novo scraper no futuro, basta incluir aqui.
+        $scrapers = [$rssScraper, $finepScraper];
+
+        // Array que vai acumular todos os editais encontrados por todos os scrapers.
+        $editais = [];
+
+        foreach ($scrapers as $scraper) {
+            // get_class() retorna o nome da classe como string para exibir no terminal.
+            // Exemplo: ""App\Scrapers\FinepScraper""
+            $this->info(""Rodando scraper: "" . get_class($scraper));
+
+            // Chama o método scrape() de cada scraper e junta os resultados no array geral.
+            // array_merge() combina o que já temos com o que o scraper atual retornou.
+            $editais = array_merge($editais, $scraper->scrape());
+        }
+
+        // Se nenhum scraper retornou nada, avisa em AMARELO e encerra.
+        // return 0 = terminou sem erro (convenção Unix: 0 = sucesso).
+        if (empty($editais)) {
+            $this->warn(""Nenhum edital retornado na busca."");
+            return 0;
+        }
+
+        $this->info(""Sucesso! Encontrei "" . count($editais) . "" editais listados via Google News."");
+
+        // Contador de editais novos para exibir no resumo final.
+        $novos = 0;
+
+        foreach ($editais as $editalData) {
+            // O try/catch está DENTRO do loop propositalmente.
+            // Se um edital com dado corrompido falhar, o próximo continua normalmente.
+            try {
+                // Salva o dado bruto original dentro do próprio registro como histórico.
+                // Útil para debugar de onde veio cada informação no futuro.
+                $editalData['payload_origem'] = $editalData;
+
+                // Registra o momento exato em que esse edital foi encontrado.
+                $editalData['last_scanned_at'] = now();
+
+                // ANTI-DUPLICATA: firstOrCreate garante que o mesmo edital nunca é inserido duas vezes.
+                // Primeiro array  → condição de busca: procura pelo codigo_externo (ID único do site de origem).
+                // Segundo array   → dados para criar SE o edital ainda não existir no banco.
+                // Se já existe    → retorna o existente sem alterar nada.
+                // Se não existe   → cria um novo registro com os dados do scraper.
+                $edital = \App\Models\Edital::firstOrCreate(
+                    ['codigo_externo' => $editalData['codigo_externo']],
+                    $editalData
+                );
+
+                // wasRecentlyCreated é uma propriedade do Eloquent.
+                // Vale true se o registro acabou de ser criado agora nessa execução.
+                // Vale false se já existia no banco antes.
+                if ($edital->wasRecentlyCreated) {
+                    $novos++;
+                    // $this->line() imprime em BRANCO (cor padrão) no terminal.
+                    $this->line(""✨ Novo edital: {$editalData['titulo']}"");
+                } else {
+                    // Se o edital já existia, apenas atualiza a data da última varredura.
+                    // Não sobrescreve nenhum outro dado — protege informações já enriquecidas.
+                    $edital->update(['last_scanned_at' => now()]);
+                }
+
+            } catch (\Throwable $e) {
+                // Usa \Throwable ao invés de \Exception porque Throwable captura TUDO,
+                // inclusive erros fatais do PHP que Exception não pegaria.
+                // $this->error() imprime em VERMELHO no terminal.
+                $this->error(""Erro ao inserir: "" . $e->getMessage());
+
+                // Loga o erro no arquivo de log do Laravel para consulta posterior.
+                \Illuminate\Support\Facades\Log::error(""Erro ao inserir via comando: "" . $e->getM
+... [truncated]",""
+"Class:app/Http/Requests/Auth/LoginRequest.php:LoginRequest","LoginRequest","app/Http/Requests/Auth/LoginRequest.php",11,84,true,"use Illuminate\Validation\ValidationException;
+
+class LoginRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
+        ];
+    }
+
+    /**
+     * Attempt to authenticate the request's credentials.
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function authenticate(): void
+    {
+        $this->ensureIsNotRateLimited();
+
+        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => trans('auth.failed'),
+            ]);
+        }
+
+        RateLimiter::clear($this->throttleKey());
+    }
+
+    /**
+     * Ensure the login request is not rate limited.
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function ensureIsNotRateLimited(): void
+    {
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+            return;
+        }
+
+        event(new Lockout($this));
+
+        $seconds = RateLimiter::availableIn($this->throttleKey());
+
+        throw ValidationException::withMessages([
+            'email' => trans('auth.throttle', [
+                'seconds' => $seconds,
+                'minutes' => ceil($seconds / 60),
+            ]),
+        ]);
+    }
+
+    /**
+     * Get the rate limiting throttle key for the request.
+     */
+    public function throttleKey(): string
+    {
+        return Str::transliterate(Str::lower($this->input('email')).'|'.$this->ip());
+    }
+}
+",""
+"Class:app/Http/Controllers/Auth/VerifyEmailController.php:VerifyEmailController","VerifyEmailController","app/Http/Controllers/Auth/VerifyEmailController.php",10,27,true,"use Illuminate\Http\RedirectResponse;
+
+class VerifyEmailController extends Controller
+{
+    /**
+     * Mark the authenticated user's email address as verified.
+     */
+    public function __invoke(EmailVerificationRequest $request): RedirectResponse
+    {
+        if ($request->user()->hasVerifiedEmail()) {
+            return redirect()->intended(RouteServiceProvider::HOME.'?verified=1');
+        }
+
+        if ($request->user()->markEmailAsVerified()) {
+            event(new Verified($request->user()));
+        }
+
+        return redirect()->intended(RouteServiceProvider::HOME.'?verified=1');
+    }
+}
+",""
+"Class:app/Http/Controllers/Auth/RegisteredUserController.php:RegisteredUserController","RegisteredUserController","app/Http/Controllers/Auth/RegisteredUserController.php",15,50,true,"use Illuminate\View\View;
+
+class RegisteredUserController extends Controller
+{
+    /**
+     * Display the registration view.
+     */
+    public function create(): View
+    {
+        return view('auth.register');
+    }
+
+    /**
+     * Handle an incoming registration request.
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        event(new Registered($user));
+
+        Auth::login($user);
+
+        return redirect(RouteServiceProvider::HOME);
+    }
+}
+",""
+"Class:app/Http/Controllers/Auth/PasswordResetLinkController.php:PasswordResetLinkController","PasswordResetLinkController","app/Http/Controllers/Auth/PasswordResetLinkController.php",10,43,true,"use Illuminate\View\View;
+
+class PasswordResetLinkController extends Controller
+{
+    /**
+     * Display the password reset link request view.
+     */
+    public function create(): View
+    {
+        return view('auth.forgot-password');
+    }
+
+    /**
+     * Handle an incoming password reset link request.
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        // We will send the password reset link to this user. Once we have attempted
+        // to send the link, we will examine the response then see the message we
+        // need to show to the user. Finally, we'll send out a proper response.
+        $status = Password::sendResetLink(
+            $request->only('email')
+        );
+
+        return $status == Password::RESET_LINK_SENT
+                    ? back()->with('status', __($status))
+                    : back()->withInput($request->only('email'))
+                            ->withErrors(['email' => __($status)]);
+    }
+}
+",""
+"Class:app/Http/Controllers/Auth/PasswordController.php:PasswordController","PasswordController","app/Http/Controllers/Auth/PasswordController.php",10,28,true,"use Illuminate\Validation\Rules\Password;
+
+class PasswordController extends Controller
+{
+    /**
+     * Update the user's password.
+     */
+    public function update(Request $request): RedirectResponse
+    {
+        $validated = $request->validateWithBag('updatePassword', [
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', Password::defaults(), 'confirmed'],
+        ]);
+
+        $request->user()->update([
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        return back()->with('status', 'password-updated');
+    }
+}
+",""
+"Class:app/Http/Controllers/Auth/NewPasswordController.php:NewPasswordController","NewPasswordController","app/Http/Controllers/Auth/NewPasswordController.php",14,60,true,"use Illuminate\View\View;
+
+class NewPasswordController extends Controller
+{
+    /**
+     * Display the password reset view.
+     */
+    public function create(Request $request): View
+    {
+        return view('auth.reset-password', ['request' => $request]);
+    }
+
+    /**
+     * Handle an incoming new password request.
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'token' => ['required'],
+            'email' => ['required', 'email'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        // Here we will attempt to reset the user's password. If it is successful we
+        // will update the password on an actual user model and persist it to the
+        // database. Otherwise we will parse the error and return the response.
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user) use ($request) {
+                $user->forceFill([
+                    'password' => Hash::make($request->password),
+                    'remember_token' => Str::random(60),
+                ])->save();
+
+                event(new PasswordReset($user));
+            }
+        );
+
+        // If the password was successfully reset, we will redirect the user back to
+        // the application's home authenticated view. If there is an error we can
+        // redirect them back to where they came from with their error message.
+        return $status == Password::PASSWORD_RESET
+                    ? redirect()->route('login')->with('status', __($status))
+                    : back()->withInput($request->only('email'))
+                            ->withErrors(['email' => __($status)]);
+    }
+}
+",""
+"Class:app/Http/Controllers/Auth/EmailVerificationPromptController.php:EmailVerificationPromptController","EmailVerificationPromptController","app/Http/Controllers/Auth/EmailVerificationPromptController.php",10,21,true,"use Illuminate\View\View;
+
+class EmailVerificationPromptController extends Controller
+{
+    /**
+     * Display the email verification prompt.
+     */
+    public function __invoke(Request $request): RedirectResponse|View
+    {
+        return $request->user()->hasVerifiedEmail()
+                    ? redirect()->intended(RouteServiceProvider::HOME)
+                    : view('auth.verify-email');
+    }
+}
+",""
+"Class:app/Http/Controllers/Auth/EmailVerificationNotificationController.php:EmailVerificationNotificationController","EmailVerificationNotificationController","app/Http/Controllers/Auth/EmailVerificationNotificationController.php",9,24,true,"use Illuminate\Http\Request;
+
+class EmailVerificationNotificationController extends Controller
+{
+    /**
+     * Send a new email verification notification.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        if ($request->user()->hasVerifiedEmail()) {
+            return redirect()->intended(RouteServiceProvider::HOME);
+        }
+
+        $request->user()->sendEmailVerificationNotification();
+
+        return back()->with('status', 'verification-link-sent');
+    }
+}
+",""
+"Class:app/Http/Controllers/Auth/ConfirmablePasswordController.php:ConfirmablePasswordController","ConfirmablePasswordController","app/Http/Controllers/Auth/ConfirmablePasswordController.php",12,40,true,"use Illuminate\View\View;
+
+class ConfirmablePasswordController extends Controller
+{
+    /**
+     * Show the confirm password view.
+     */
+    public function show(): View
+    {
+        return view('auth.confirm-password');
+    }
+
+    /**
+     * Confirm the user's password.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        if (! Auth::guard('web')->validate([
+            'email' => $request->user()->email,
+            'password' => $request->password,
+        ])) {
+            throw ValidationException::withMessages([
+                'password' => __('auth.password'),
+            ]);
+        }
+
+        $request->session()->put('auth.password_confirmed_at', time());
+
+        return redirect()->intended(RouteServiceProvider::HOME);
+    }
+}
+",""
+"Class:app/Http/Controllers/Auth/AuthenticatedSessionController.php:AuthenticatedSessionController","AuthenticatedSessionController","app/Http/Controllers/Auth/AuthenticatedSessionController.php",12,47,true,"use Illuminate\View\View;
+
+class AuthenticatedSessionController extends Controller
+{
+    /**
+     * Display the login view.
+     */
+    public function create(): View
+    {
+        return view('auth.login');
+    }
+
+    /**
+     * Handle an incoming authentication request.
+     */
+    public function store(LoginRequest $request): RedirectResponse
+    {
+        $request->authenticate();
+
+        $request->session()->regenerate();
+
+        return redirect()->intended(RouteServiceProvider::HOME);
+    }
+
+    /**
+     * Destroy an authenticated session.
+     */
+    public function destroy(Request $request): RedirectResponse
+    {
+        Auth::guard('web')->logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        return redirect('/');
+    }
+}
+",""
