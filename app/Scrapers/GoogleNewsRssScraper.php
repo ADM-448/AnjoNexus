@@ -13,16 +13,14 @@ class GoogleNewsRssScraper implements ScraperInterface
      */
     public function scrape(): array
     {
-        // Ampliei o termo para "edital inovação" para garantir que a gente sempre ache
-        // notícias e você veja a mágica do scraper rodando na prática!
-        $termos = urlencode('edital inovação');
+        // Alterei a busca para algo bem mais específico e técnico (termos de governo)
+        // Isso ajuda a trazer resultados mais próximos de editais reais.
+        $termos = urlencode('site:gov.br ("extrato de edital" OR "chamada pública") inovação');
         $url = "https://news.google.com/rss/search?q={$termos}&hl=pt-BR&gl=BR";
 
         $resultados = [];
 
         try {
-            // Em vez de simplexml_load_file q as vezes o google bloqueia por faltar User-Agent,
-            // usamos o Facade Http nativo do Laravel passando que somos um navegador!
             $response = \Illuminate\Support\Facades\Http::withHeaders([
                 'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
             ])->get($url);
@@ -32,25 +30,30 @@ class GoogleNewsRssScraper implements ScraperInterface
                 return [];
             }
 
-            // O PHP parseia o texto XML para um Object com base na string que o Http pegou
             $xml = simplexml_load_string($response->body());
 
-            // O XML de RSS tem `<channel>` e dentro de channel vários `<item>`
-            // Cada item é uma notícia.
             if (isset($xml->channel->item)) {
                 foreach ($xml->channel->item as $noticia) {
                     
-                    // Converte os dados do XML para string (tipo seguro do PHP)
                     $tituloString = (string) $noticia->title;
+
+                    // FILTRO DE QUALIDADE: 
+                    // Se não tiver palavras-chave no título, provavelmente é só uma notícia/matéria
+                    // Queremos reduzir o ruído para o TCC do usuário.
+                    $lowTitle = mb_strtolower($tituloString);
+                    if (!str_contains($lowTitle, 'edital') && 
+                        !str_contains($lowTitle, 'chamada') && 
+                        !str_contains($lowTitle, 'concurso')) {
+                        continue;
+                    }
+
                     $linkString = (string) $noticia->link;
-                    // Hash o link pq ele é único e a url original vem camuflada no google news
                     $codigoExterno = md5($linkString);
-                    // extrai publisher do title, google news bota publisher no final "- Publisher"
                     $publisher = explode(' - ', $tituloString);
                     $orgao = trim(end($publisher));
                     
                     if (empty($orgao)) {
-                        $orgao = 'Google News / Governo';
+                        $orgao = 'Portal Transparência / Gov';
                     }
 
                     $resultados[] = [

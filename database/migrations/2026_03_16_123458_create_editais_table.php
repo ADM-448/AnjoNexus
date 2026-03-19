@@ -15,20 +15,20 @@ return new class extends Migration
     {
         Schema::create('editais', function (Blueprint $table) {
             $table->id();
-            $table->string('titulo');
+            $table->text('titulo');
             $table->string('codigo_externo')->nullable(); // ID no site de origem, para deduplicação
             $table->string('orgao')->default('Finep');
             $table->string('email_contato')->nullable();
-            $table->string('modalidade')->nullable();
+            $table->text('modalidade')->nullable();
             $table->decimal('orcamento_global', 15, 2)->nullable();
-            $table->string('publico_alvo')->nullable();
+            $table->text('publico_alvo')->nullable();
             $table->text('temas')->nullable();
             $table->string('trl_min')->nullable();
             $table->string('trl_max')->nullable();
             $table->date('data_abertura')->nullable();
             $table->date('data_encerramento')->nullable();
             $table->enum('status', ['Aberto', 'Encerrado', 'Em breve'])->default('Aberto');
-            $table->string('url_oficial')->nullable();
+            $table->text('url_oficial')->nullable();
             $table->timestamps();
         });
     }

@@ -47,8 +47,16 @@
             @endif
         </div>
 
-        <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+        <div>
+            <x-input-label for="google_gemini_key" :value="__('Sua Chave Google Gemini (Opcional)')" />
+            <x-text-input id="google_gemini_key" name="google_gemini_key" type="password" class="mt-1 block w-full bg-slate-50 dark:bg-slate-900/50" :value="old('google_gemini_key', $user->google_gemini_key)" placeholder="AIza..." />
+            <p class="mt-1 text-xs text-slate-500">Se deixada em branco, usaremos os créditos da plataforma. Se preenchida, você usará seus próprios créditos do Google.</p>
+            <x-input-error class="mt-2" :messages="$errors->get('google_gemini_key')" />
+        </div>
+        <div class="flex items-center gap-4 mt-8">
+            <x-primary-button class="bg-indigo-600 hover:bg-indigo-500 py-2.5 px-6 rounded-xl shadow-lg shadow-indigo-500/20 active:scale-95 transition-all text-xs">
+                {{ __('Salvar Alterações') }}
+            </x-primary-button>
 
             @if (session('status') === 'profile-updated')
                 <p

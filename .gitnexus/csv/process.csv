@@ -1,4 +1,0 @@
-id,label,heuristicLabel,processType,stepCount,communities,entryPointId,terminalId
-"proc_0_store","Store → ThrottleKey","Store → ThrottleKey","intra_community",4,"['comm_35']","Method:app/Http/Controllers/Auth/AuthenticatedSessionController.php:store","Method:app/Http/Requests/Auth/LoginRequest.php:throttleKey"
-"proc_1_index","Index → Create","Index → Create","cross_community",3,"['comm_7','comm_4']","Method:app/Http/Controllers/OpenAIController.php:index","Method:app/Http/Controllers/Auth/NewPasswordController.php:create"
-"proc_2_boot","Boot → User","Boot → User","intra_community",3,"['comm_9']","Method:app/Providers/RouteServiceProvider.php:boot","Method:app/Models/Empresa.php:user"

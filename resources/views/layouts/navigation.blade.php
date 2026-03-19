@@ -5,9 +5,13 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center gap-2">
-                    <a href="{{ route('dashboard') }}" class="flex items-center gap-2">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
-                        <span class="font-bold text-lg text-indigo-600 dark:text-indigo-400 hidden sm:inline tracking-tight">Anjo Inovador</span>
+                    <a href="{{ route('dashboard') }}" class="flex items-center gap-2 group">
+                        <div class="bg-indigo-600 p-2 rounded-lg group-hover:scale-105 transition-transform">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                            </svg>
+                        </div>
+                        <span class="font-black text-xl text-slate-800 dark:text-white hidden sm:inline tracking-tight">Anjo<span class="text-indigo-600">Nexus</span></span>
                     </a>
                 </div>
 
@@ -24,6 +28,12 @@
                     <x-nav-link :href="route('empresa.edit')" :active="request()->routeIs('empresa.*')">
                         {{ __('Minha Empresa') }}
                     </x-nav-link>
+
+                    @if(auth()->user()->is_admin)
+                        <x-nav-link :href="route('admin.index')" :active="request()->routeIs('admin.*')" class="text-indigo-600 dark:text-indigo-400 font-bold">
+                            {{ __('Painel Admin ⚡') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 

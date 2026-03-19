@@ -13,6 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
+        if (config('database.default') === 'sqlite' || env('DB_CONNECTION') === 'sqlite') {
+            return;
+        }
+
         Schema::table('editais', function (Blueprint $table) {
             // Mudando para text() para suportar títulos e URLs gigantes (vinda de redirecionamento do Google por exemplo)
             $table->text('titulo')->change();

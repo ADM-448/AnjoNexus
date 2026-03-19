@@ -10,10 +10,10 @@ use App\Services\GeminiService;
 
 class OpenAIController extends Controller
 {
-    // Propriedade que guarda o serviço da IA para usar em qualquer método da classe.
+    // Propriedades que guardam os serviços para uso na classe
     protected $gemini;
 
-    // O Laravel injeta automaticamente o GeminiService aqui quando o controller é criado.
+    // O Laravel injeta automaticamente as dependências quando o controller é criado.
     public function __construct(GeminiService $gemini)
     {
         $this->gemini = $gemini;
@@ -38,29 +38,46 @@ class OpenAIController extends Controller
         // Se for só um GET (abrindo a página), pula esse bloco inteiro.
         if ($request->isMethod('post') && $request->search) {
 
-            // Pega o modelo escolhido pelo usuário. Se não escolheu nenhum, usa o Flash como padrão.
+            // Pega o modelo escolhido pelo usuário.
             $modelId = $request->get('model', 'gemini-flash-latest');
 
-            // Busca a empresa do usuário logado para incluir os dados dela no prompt.
-            $empresa = \App\Models\Empresa::where('user_id', auth()->id())->first();
+            // --- Lógica de Créditos ou Chave Própria ---
+            $user = auth()->user();
+            $userKey = $user->google_gemini_key ?? null;
+            $usandoChavePropria = !empty($userKey);
+            
+            // Custo: Pro (3) vs Outros (Lite/Flash) (1)
+            $custo = ($modelId === 'gemini-pro') ? 3 : 1;
 
-            // Monta o prompt completo com contexto do edital + dados da empresa + texto do usuário.
+            if (!$usandoChavePropria) {
+                if ($user->creditos_ia < $custo) {
+                    return back()->with('error', "Saldo insuficiente! Você tem {$user->creditos_ia} créditos e precisa de {$custo} para rodar este modelo. Vincule sua própria chave no Perfil para uso ilimitado!");
+                }
+                
+                // Debita créditos antes do processamento
+                $user->decrement('creditos_ia', $custo);
+            }
+
+            // Busca a empresa para contexto
+            $empresa = \App\Models\Empresa::where('user_id', $user->id)->first();
+
+            // Monta o prompt
             $finalPrompt = $this->buildPrompt($request, $empresa);
 
-            // Gera uma chave única para o cache baseada no modelo + conteúdo do prompt.
-            // md5() transforma o prompt longo em uma string curta de 32 caracteres.
-            // Exemplo de chave: "gemini_gemini-pro_a3f5c8d2e1..."
+            // Chave do Cache (para não cobrar 2x se der F5)
             $key_search = "gemini_{$modelId}_" . md5($finalPrompt);
 
             try {
-                // CACHE: Se esse exato prompt já foi processado nas últimas 12h,
-                // retorna o resultado salvo sem chamar a API. Economiza custo e tempo.
                 if (cache()->has($key_search)) {
                     $info   = ["Info em cache (Gemini)"];
                     $result = cache()->get($key_search);
+                    
+                    // Reembolsa créditos se veio do cache (opcional, mas justo)
+                    if (!$usandoChavePropria) {
+                        $user->increment('creditos_ia', $custo);
+                    }
                 } else {
-                    // Não está em cache: chama a API do Gemini de verdade.
-                    $result = $this->gemini->generateContent($finalPrompt, $modelId);
+                    $result = $this->gemini->generateContent($finalPrompt, $modelId, $userKey);
 
                     // Se a IA não retornou nada, lança uma exceção para cair no catch abaixo.
                     if (!$result) {
@@ -81,15 +98,10 @@ class OpenAIController extends Controller
                 // O operador ternário evita erro caso edital_id não exista.
                 $editalObj = $request->has('edital_id') ? \App\Models\Edital::find($request->edital_id) : null;
 
-                // Retorna a view com o resultado gerado pela IA e todos os dados relacionados.
-                return view('openai.index', [
-                    'models'            => $models,
-                    'result'            => $result,       // Texto da proposta gerada pela IA.
-                    'info'              => $info,         // Info se veio do cache ou da API.
-                    'selectedEditalName'=> $editalObj->titulo ?? "", // ?? "" evita erro se edital for null.
-                    'editalObj'         => $editalObj,
-                    'projetoSalvo'      => $projetoSalvo, // Projeto salvo no banco (para exibir link, etc).
-                ]);
+                // Redirecionamento (Padrão PRG - Post/Redirect/Get)
+                // Isso evita que o usuário adicione versões duplicadas ao dar F5 na página.
+                return redirect()->route('projetos.show', $projetoSalvo->id)
+                    ->with('success', 'Nova versão da proposta gerada com sucesso pela IA!');
 
             } catch (Exception $e) {
                 // Se qualquer coisa deu errado (API fora do ar, etc):
@@ -189,14 +201,15 @@ class OpenAIController extends Controller
                 ]
             );
 
+
             // Cada geração cria um NOVO documento vinculado ao projeto.
             // Assim o usuário mantém o histórico de todas as versões geradas,
             // mesmo que o projeto (empresa+edital) já existisse.
             \App\Models\DocumentoGerado::create([
-                'projeto_id'       => $projeto->id,
-                'conteudo_ia'      => $result, // Texto completo gerado pela IA.
-                'prompt_utilizado' => $search, // O que o usuário digitou (para referência futura).
-                'status'           => 'Pronto',
+                'projeto_id'            => $projeto->id,
+                'conteudo_ia'           => $result, // Texto completo gerado pela IA.
+                'prompt_utilizado'      => $search, // O que o usuário digitou (para referência futura).
+                'status'                => 'Pronto',
             ]);
 
             return $projeto;

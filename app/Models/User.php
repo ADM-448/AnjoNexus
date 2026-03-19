@@ -21,6 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'google_gemini_key',
+        'is_admin',
     ];
 
     /**
@@ -30,8 +32,15 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
+        'google_gemini_key',
+        'is_admin',
         'remember_token',
     ];
+
+    public function isAdmin(): bool
+    {
+        return (bool) $this->is_admin;
+    }
 
     /**
      * The attributes that should be cast.
