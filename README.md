@@ -1,151 +1,33 @@
-<h1>Laravel ChatGPT</h1>
-<h3>Application Laravel integrated with OpenAI's ChatGPT, with Authentication and Cache.</h3>
-<p>In this project, we have a Laravel 9 application with PHP 8.2, with a login session and access to OpenAI's ChatGPT API, in addition, there is a cache application to avoid the consumption of recently performed queries.
-The entire Laravel project also has TailwindCSS themes, Vite.js to compile scripts, docker-compose file with PHP 8.2, MySQL and Redis. Furthermore, the entire project runs easily with Laravel Sail, requiring only a docker environment to run.</p>
-<h1>Get Started</h1>
-<h4>Required:</h4>
+# AnjoNexus
 
--   PHP 8.1+
--   Docker
--   WSL2 (recommended)
--   OpenAI account for API Key
+Bem-vindo ao repositório do **AnjoNexus**, uma plataforma inteligente de automação de busca, análise e elaboração de propostas para Editais de fomento, subvenção e inovação. 
 
-<h4>Installation</h4>
+## O que é o AnjoNexus?
+O AnjoNexus atua como uma ponte entre as oportunidades de financiamento (público e privado) e as empresas inovadoras. Ele resolve a maior dor de captação de recursos: **o tempo perdido na leitura de dezenas de páginas burocráticas e na formulação de respostas do zero**. 
 
--   Clone this repository
--   Run `composer update`
--   Into folder, run `./vendor/bin/sail build`
--   After build, run `./vendor/bin/sail up -d`
--   Done, access on browser `http://localhost`
+O sistema utiliza automação (Scrapers) para varrer editais diariamente e processamento de linguagem baseada em Inteligência Artificial para ler, traduzir e gerar os argumentos preenchendo os formulários baseado no perfil inovador da própria empresa.
 
-<h1>Tutorial<h1>
-...
+## Documentação Oficial 
 
-<h1>How this project was made!</h1>
+Para o entendimento aprofundado do software (banca avaliadora, investidores e equipes técnicas), as diretrizes do sistema foram mapeadas na pasta `/docs/`. Acesse:
 
--   Create a new project with Laravel Sail template
+1. 📚 **[Visão Geral do Sistema](docs/sistema_visao_geral.md)** - O fluxo macro do produto (Descoberta, Enriquecimento e Geração).
+2. 🔒 **[Regras de Negócio](docs/regras_de_negocio.md)** - Regras de proteção do banco de dados, fluxo de caixa (Mercado Pago), filas de requisição e economia de APIs.
+3. ⚙️ **[Arquitetura e Engenharia](docs/arquitetura_tecnica.md)** - Padrões MVC do Laravel, Injeção de Dependências, Patterns usados nos robôs coletores e regex de resgate semântico.
+4. ⏱️ **[Timeline de Execução (Passo a Passo)](docs/timeline_execucao.md)** - Rastreamento de requests desde a cronologia noturna (Scrape Editais Command) até as Views Blade do usuário.
 
-```bash
-curl -s "https://laravel.build/example-app?with=mysql,redis" | bash
-```
+## Tecnologias e Stack
+- **Linguagem:** PHP 8.2 (Laravel MVC) e JavaScript.
+- **Banco de Dados:** MySQL (via Eloquent ORM).
+- **APIs Externas:** Google Gemini e Mercado Pago.
+- **Frontend:** TailwindCSS e Blade Templates compilados via Vite.
 
--   Running the project with Laravel Sail
+## Instalação e Setup
+1. Clone o repositório.
+2. Copie o arquivo `.env.example` para `.env` e ajuste suas chaves de API.
+3. Instale os pacotes: `composer install` e `npm install`
+4. Gere a chave do framework e inicie o banco: `php artisan key:generate` e `php artisan migrate`
+5. Inicie o servidor: `php artisan serve` e `npm run dev`
 
-```bash
-sail up -d
-```
-
--   Require laravel breeze for gerante auth sessions pages
-
-```bash
-composer require laravel/breeze --dev
-```
-
--   Install Laravel Breeze, apply generate auth session pages on project
-
-```bash
-php artisan breeze:install
-```
-
--   Run all migrations, including migrations of breeze
-
-```bash
-php artisan migrate
-```
-
--   Install npm dependencies
-
-```bash
-npm install
-```
-
--   Run npm to test application are stared
-
-```bash
-npm run dev
-```
-
--   If your application not found scripts will be set configuration into ./vite.config.js file add after `plugins: [...]`
-
-```js
-    watch: {
-        usePolling: true,
-        origin: 'http://localhost'
-    },
-    server: {
-        hmr: {
-            host: 'localhost'
-        }
-    }
-```
-
--   To add authentication session on application
-
-```bash
-php artisan breeze:install --dark
-```
-
--   Install Nuno Maduro dependencies for supporting at OpenAI, with all api resources.
-
-```bash
-composer require openai-php/client
-```
-
--   Add into .env OpenAI key
-
-```bash
-echo -e '\nOPEN_AI_KEY="CHANGE_TO_YOUR_KEY..."' >> .env
-```
-
--   Genertate OpenAIController
-
-```bash
-sail artisan make:controller OpenAIController
-```
-
--   Run again NPM for auto builds scripts after changes
-
-```bash
-npm run dev
-```
-
--   New Route on web.php file, into session auth, add route:
-
-```php
-    Route::get('/openai', [OpenAIController::class, 'index'])->name('openai.index');
-```
-
--   New Link for menu access, on file ./resources/views/layouts/navigation.blade.php add:
-
-    ```html
-    <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-        <x-nav-link
-            :href="route('openai.index')"
-            :active="request()->routeIs('openai.index')"
-        >
-            {{ __('OpenAI') }}
-        </x-nav-link>
-    </div>
-    ```
-
--   New file ./app/Http/Controllers/OpenAIController.php
-
--   New file ./resources/views/openai/index.blade.php
-
-<h1>Inspirations</h1>
-
--   About OpenAI models
-
-[Openai Models](https://beta.openai.com/docs/models/gpt-3)
-
--   OpenAI-PHP Dependencies
-
-[Nuno Maduro - OpenAI-PHP dependecy](https://github.com/openai-php/client)
-
--   OpenAI ChatGPT
-
-[OpenAI ChatGTP](https://openai.com/blog/chatgpt/)
-
--   App Node.js with ChatGPT and WhatsApp
-
-[Victor Harray - Guide integration ChatGPT with WhatsApp](https://medium.com/@victorhcharry/guia-completo-de-como-integrar-o-gpt-com-whatsapp-da9040341859)
+---
+*AnjoNexus — Gestão e Inteligência para Captação de Fomento.*
