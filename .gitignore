@@ -17,3 +17,13 @@ yarn-error.log
 /.idea
 /.vscode
 .gitnexus
+
+# Documentação interna (não sobe pro Git)
+/docs
+arquitetura_tecnica.md
+regras_de_negocio.md
+sistema_visao_geral.md
+timeline_execucao.md
+guia_de_estudo_completo.md
+"Instruções de dev.md"
+ModeloBanco.md
