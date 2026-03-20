@@ -9,12 +9,6 @@ O sistema utiliza automação (Scrapers) para varrer editais diariamente e proce
 
 ## Documentação Oficial 
 
-Para o entendimento aprofundado do software (banca avaliadora, investidores e equipes técnicas), as diretrizes do sistema foram mapeadas na pasta `/docs/`. Acesse:
-
-1. 📚 **[Visão Geral do Sistema](docs/sistema_visao_geral.md)** - O fluxo macro do produto (Descoberta, Enriquecimento e Geração).
-2. 🔒 **[Regras de Negócio](docs/regras_de_negocio.md)** - Regras de proteção do banco de dados, fluxo de caixa (Mercado Pago), filas de requisição e economia de APIs.
-3. ⚙️ **[Arquitetura e Engenharia](docs/arquitetura_tecnica.md)** - Padrões MVC do Laravel, Injeção de Dependências, Patterns usados nos robôs coletores e regex de resgate semântico.
-4. ⏱️ **[Timeline de Execução (Passo a Passo)](docs/timeline_execucao.md)** - Rastreamento de requests desde a cronologia noturna (Scrape Editais Command) até as Views Blade do usuário.
 
 ## Tecnologias e Stack
 - **Linguagem:** PHP 8.2 (Laravel MVC) e JavaScript.
